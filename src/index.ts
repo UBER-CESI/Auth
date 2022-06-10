@@ -1,33 +1,47 @@
+import { Server } from "http";
 const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt')
 const app = express();
+const server = app.listen(process.env.PORT || 3000, () => {
+    console.log(`App Started on PORT ${process.env.PORT || 3000}`);
+});
 
-app.use(session({ secret: 'ssshhhhh', saveUninitialized: true, resave: true }));
+
+
+
+
+app.use(session({
+    secret: 'ssshhhhh',
+    saveUninitialized: true,
+    resave: true,
+    cookie: { maxAge: 100000 }, // in miliseconds
+}));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/views'));
 
-// global session, NOT recommended
+
 
 app.get('/', (req, res) => {
     var sess = req.session;
-    if (sess.email) {
+    if (sess.username) {
         return res.redirect('/admin');
     }
     res.render('index.ejs');
 });
 
 app.post('/login', (req, res) => {
-    var sess = req.session;
-    sess.email = req.body.name;
-    sess.password = req.body.password;
-    res.render('AlreadyLoggedIn.ejs', { name: req.session.email });
+    InstanciateSession(req.session, req.body.name, req.body.password);
+    console.log(req.session.username);
+    res.render('AlreadyLoggedIn.ejs', { name: req.session.username });
 });
 app.get('/login', (req, res) => {
     var sess = req.session;
-    if (sess.email) {
-        res.render('AlreadyLoggedIn.ejs', { name: req.session.email })
+    if (sess.username) {
+        res.render('AlreadyLoggedIn.ejs', { name: sess.username })
     } else {
         res.render('Login.ejs');
     }
@@ -37,8 +51,8 @@ app.get('/login', (req, res) => {
 
 app.get('/admin', (req, res) => {
     var sess = req.session;
-    if (sess.email) {
-        res.write(`<h1>Hello ${sess.email} h1><br>`);
+    if (sess.username) {
+        res.write(`<h1>Hello ${sess.username} h1><br>`);
         res.end('' + '>Logout');
     }
     else {
@@ -47,6 +61,14 @@ app.get('/admin', (req, res) => {
     }
 });
 
+app.get('/login/getMySessionUsername', (req, res) => {
+    var sess = req.session;
+    if (sess.username) {
+        res.send(sess.username);
+    } else {
+        res.send("notConnected");
+    }
+})
 app.post('/logout', (req, res) => {
     req.session.destroy((err) => {
         if (err) {
@@ -58,6 +80,18 @@ app.post('/logout', (req, res) => {
 
 
 
-app.listen(process.env.PORT || 3000, () => {
-    console.log(`App Started on PORT ${process.env.PORT || 3000}`);
-});
+
+
+
+function InstanciateSession(sess, username, password) {
+    sess.username = username;
+    sess.password = bcrypt.hash(password, 10);
+}
+export default {
+    async spawn() { },
+    stop() {
+        server.close();
+
+    },
+};
+
