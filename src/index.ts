@@ -1,40 +1,63 @@
-import cors from "cors";
-import { Ability, AbilityBuilder } from "@casl/ability";
-import express from "express";
-const defineAbility = (user = {}) => {
-    const { can, cannot, build } = new AbilityBuilder(Ability);
-
-    can('Get', 'Bonbon');
-    return build();
-}
-const ability = defineAbility();
+const express = require('express');
+const session = require('express-session');
+const bodyParser = require('body-parser');
 const app = express();
-app.use(express.json());
-app.use(cors());
-app.set('view-engine', 'ejs');
-app.use(express.urlencoded({ extended: false }))
-app.get("/", (req, res) => {
 
-    var response = "bonjour pd! ";
-    if (ability.can("Get", "Bonbon")) {
-        response += "Tiens un bonbon"
-    } else {
-        response += "T'es moche. Pas de bonbons pour toi"
+app.use(session({ secret: 'ssshhhhh', saveUninitialized: true, resave: true }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(__dirname + '/views'));
+
+// global session, NOT recommended
+
+app.get('/', (req, res) => {
+    var sess = req.session;
+    if (sess.email) {
+        return res.redirect('/admin');
     }
-    res.send(response);
-    console.log("new connection");
-}
-);
-app.get("/Login", (req, res) => {
-
-    res.render('Login.ejs');
-})
-app.post("/Login", (req, res) => {
-
-    res.send(req.body.name);
+    res.render('index.ejs');
 });
 
-app.listen(8080, () =>
-    console.log("Server listening on http://localhost:8080")
+app.post('/login', (req, res) => {
+    var sess = req.session;
+    sess.email = req.body.name;
+    sess.password = req.body.password;
+    res.render('AlreadyLoggedIn.ejs', { name: req.session.email });
+});
+app.get('/login', (req, res) => {
+    var sess = req.session;
+    if (sess.email) {
+        res.render('AlreadyLoggedIn.ejs', { name: req.session.email })
+    } else {
+        res.render('Login.ejs');
+    }
 
-);
+})
+
+
+app.get('/admin', (req, res) => {
+    var sess = req.session;
+    if (sess.email) {
+        res.write(`<h1>Hello ${sess.email} h1><br>`);
+        res.end('' + '>Logout');
+    }
+    else {
+        res.write('Please login first.');
+        res.end('' + '>Login');
+    }
+});
+
+app.post('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return console.log(err);
+        }
+        res.redirect('/');
+    });
+});
+
+
+
+app.listen(process.env.PORT || 3000, () => {
+    console.log(`App Started on PORT ${process.env.PORT || 3000}`);
+});
