@@ -1,9 +1,15 @@
 import { Server } from "http";
+import * as Models from "./Models";
+import * as Abilities from './AbilitiesManager'
 const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt')
 const app = express();
+
+
+
+
 const server = app.listen(process.env.PORT || 3000, () => {
     console.log(`App Started on PORT ${process.env.PORT || 3000}`);
 });
@@ -26,6 +32,7 @@ app.use(express.static(__dirname + '/views'));
 
 
 app.get('/', (req, res) => {
+
     var sess = req.session;
     if (sess.username) {
         return res.redirect('/admin');
