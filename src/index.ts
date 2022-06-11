@@ -1,15 +1,36 @@
 import { Server } from "http";
 import * as Models from "./Models";
 import * as Abilities from './AbilitiesManager'
+import { Ability } from "@casl/ability";
 const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt')
 const app = express();
 
+const FinalUser: Models.User = {
+    id: 1,
+    email: "FinalUser@gmail.com",
+    username: "Marcus",
+    password: " ",
+    type: Models.UserType.FinalUser
+};
 
+const DelivererUser: Models.User = {
+    id: 2,
+    email: "Deliverer@gmail.com",
+    username: "François",
+    password: " ",
+    type: Models.UserType.Deliverer
+}
 
-
+const OrderPH: Models.Order = {
+    id: 1,
+    idOwner: 1,
+    idDeliverer: 2,
+    idRestaurant: 0,
+    status: Models.OrderStatus.Payed
+}
 const server = app.listen(process.env.PORT || 3000, () => {
     console.log(`App Started on PORT ${process.env.PORT || 3000}`);
 });
@@ -41,14 +62,42 @@ app.get('/', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-    InstanciateSession(req.session, req.body.name, req.body.password);
-    console.log(req.session.username);
-    res.render('AlreadyLoggedIn.ejs', { name: req.session.username });
+    if (FinalUser.email === req.body.email && FinalUser.password === req.body.password) {
+        InstanciateSession(FinalUser, req.session);
+        console.log(req.session.username);
+
+
+    } else {
+        if (DelivererUser.email === req.body.email && DelivererUser.password === req.body.password) {
+            InstanciateSession(DelivererUser, req.session);
+            console.log(req.session.username);
+
+        } else {
+            res.render('wrongId.ejs');
+            return;
+        }
+    }
+    const ability = new Ability(req.session.rules);
+
+    res.render('AlreadyLoggedIn.ejs', {
+        name: req.session.username,
+        type: req.session.type,
+        canHoolaHoop: ability.can('do', 'hoola-hoop'),
+        canBetterHoolaHoop: ability.can('do', 'better hoola-hoop')
+    });
+
+
 });
 app.get('/login', (req, res) => {
     var sess = req.session;
     if (sess.username) {
-        res.render('AlreadyLoggedIn.ejs', { name: sess.username })
+        const ability = new Ability(req.session.rules);
+        res.render('AlreadyLoggedIn.ejs', {
+            name: req.session.username,
+            type: req.session.type,
+            canHoolaHoop: ability.can('do', 'hoola-hoop'),
+            canBetterHoolaHoop: ability.can('do', 'better hoola-hoop')
+        });
     } else {
         res.render('Login.ejs');
     }
@@ -90,9 +139,13 @@ app.post('/logout', (req, res) => {
 
 
 
-function InstanciateSession(sess, username, password) {
-    sess.username = username;
-    sess.password = bcrypt.hash(password, 10);
+function InstanciateSession(user: Models.User, sess) {
+
+    sess.username = user.username;
+    sess.password = bcrypt.hash(user.password, 10);
+    sess.type = user.type;
+    sess.rules = Abilities.GetRulesFor(user);
+    console.log(sess.rules)
 }
 export default {
     async spawn() { },

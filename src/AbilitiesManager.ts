@@ -1,9 +1,10 @@
 
-import { AbilityBuilder, Ability } from '@casl/ability';
+import { AbilityBuilder, Ability, buildMongoQueryMatcher } from '@casl/ability';
+import { builtinModules } from 'module';
 import { isErrored } from 'stream';
 import * as Models from './Models'
 
-export function GetAbilitiesFor(user: Models.User) {
+export function GetRulesFor(user: Models.User) {
     return (abilities[user.type](user));
 }
 
@@ -19,13 +20,14 @@ const abilities: { [K: string]: Function } = {
 
 function GetFinalUserAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
+    can('do', 'hoola-hoop');
     can('manage', 'account', { idOwner: user.Id });
     can('manage', 'order', { idOwner: user.Id });
     can('read', 'orderHistory', { idOwner: user.Id });
     can('read', 'orderDeliveryStatus', { idOwner: user.Id });
     can('create', 'sponsorLink', { idOwner: user.Id, type: user.type });
-
     return rules;
+
 }
 
 function GetRestaurateurAbilities(user) {
@@ -39,11 +41,11 @@ function GetRestaurateurAbilities(user) {
     can('read', 'orderHistory', { idRestaurant: user.idRestaurant });
     can('read', 'statistics', { idRestaurant: user.idRestaurant });
     can('create', 'sponsorLink', { idOwner: user.Id, type: user.type });
-
     return rules;
 }
 function GetDelivererAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
+    can('do', 'better hoola-hoop');
     can('manage', 'account', { idOwner: user.Id });
     can('accept', 'orders', { OrderStatus: Models.OrderStatus.Done });
     can('deliver', 'order', { OrderStatus: Models.OrderStatus.InDelivery, idDeliverer: user.id });
