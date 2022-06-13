@@ -55,24 +55,23 @@ function GetDelivererAbilities(user) {
 function GetDevelopperAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
     can('manage', 'account', { idOwner: user.Id });
+    can('update', 'component');
     can('download', 'component');
     return rules;
 }
 function GetComemrcialAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
-
-    cannot('delete', 'BlogPost', {
-        createdAt: { $lt: Date.now() - 24 * 60 * 60 * 1000 }
-    });
+    can('manage', 'account');
+    can('read', 'statistics');
     return rules;
 }
 
 function GetTechnicianAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
-
-    cannot('delete', 'BlogPost', {
-        createdAt: { $lt: Date.now() - 24 * 60 * 60 * 1000 }
-    });
+    can('manage', 'account', { idOwner: user.Id });
+    can('read', 'connectionLogs');
+    can('read', 'serverPerformanceStats');
+    can('read', 'componentDownloadsLogs');
     return rules;
 }
 

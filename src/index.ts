@@ -40,7 +40,7 @@ const server = app.listen(process.env.PORT || 3000, () => {
 
 
 app.use(session({
-    secret: 'ssshhhhh',
+    secret: 'X5ix1MylhUTBWRU',
     saveUninitialized: true,
     resave: true,
     cookie: { maxAge: 10000 }, // in miliseconds
@@ -50,7 +50,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/views'));
 
-
+require('./routes')(app);
 
 app.get('/', (req, res) => {
 
@@ -73,7 +73,7 @@ app.post('/login', (req, res) => {
             console.log(req.session.username);
 
         } else {
-            res.render('wrongId.ejs');
+            res.render('wrongId.ejs', { name: req.body.email, password: req.body.password });
             return;
         }
     }
@@ -116,7 +116,24 @@ app.get('/admin', (req, res) => {
         res.end('' + '>Login');
     }
 });
-
+app.get('/login/canDoHoolaHoop', (req, res) => {
+    var sess = req.session;
+    if (sess.username) {
+        const ability = new Ability(sess.rules);
+        res.send(ability.can('do', 'hoola-hoop'));
+    } else {
+        res.send("notConnected");
+    }
+})
+app.get('/login/canDoBetterHoolaHoop', (req, res) => {
+    var sess = req.session;
+    if (sess.username) {
+        const ability = new Ability(sess.rules);
+        res.send(ability.can('do', 'better hoola-hoop'));
+    } else {
+        res.send("notConnected");
+    }
+})
 app.get('/login/getMySessionUsername', (req, res) => {
     var sess = req.session;
     if (sess.username) {
