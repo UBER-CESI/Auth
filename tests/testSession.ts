@@ -12,15 +12,21 @@ const FinalUser: Models.User = {
     id: 1,
     email: "FinalUser@gmail.com",
     username: "Marcus",
+    firstName: "Marcus",
+    lastName: "BELMONT",
     password: " ",
-    type: Models.UserType.FinalUser
+    type: Models.UserType.Custommer,
+    phoneNumber: "+33625456984"
 };
 const DelivererUser: Models.User = {
     id: 2,
     email: "Deliverer@gmail.com",
     username: "François",
+    firstName: "François",
+    lastName: "PIGNON",
     password: " ",
-    type: Models.UserType.Deliverer
+    type: Models.UserType.Deliverer,
+    phoneNumber: "+33625456984"
 }
 const loginFinalUser = {
     method: "post",

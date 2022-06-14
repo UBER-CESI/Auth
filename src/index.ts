@@ -9,28 +9,28 @@ const bcrypt = require('bcrypt')
 const app = express();
 
 const FinalUser: Models.User = {
-    id: 1,
+    id: "1",
     email: "FinalUser@gmail.com",
-    username: "Marcus",
+    nickname: "Marcus",
+    firstName: "Marcus",
+    lastName: "BELMONT",
     password: " ",
-    type: Models.UserType.FinalUser
+    type: Models.UserType.Custommer,
+    phoneNumber: "+33625456984"
 };
 
 const DelivererUser: Models.User = {
-    id: 2,
+    id: "2",
     email: "Deliverer@gmail.com",
-    username: "François",
+    nickname: "François",
+    firstName: "François",
+    lastName: "PIGNON",
     password: " ",
-    type: Models.UserType.Deliverer
+    type: Models.UserType.Deliverer,
+    phoneNumber: "+33625456984"
 }
 
-const OrderPH: Models.Order = {
-    id: 1,
-    idOwner: 1,
-    idDeliverer: 2,
-    idRestaurant: 0,
-    status: Models.OrderStatus.Payed
-}
+
 const server = app.listen(process.env.PORT || 3000, () => {
     console.log(`App Started on PORT ${process.env.PORT || 3000}`);
 });
@@ -158,7 +158,7 @@ app.post('/logout', (req, res) => {
 
 function InstanciateSession(user: Models.User, sess) {
 
-    sess.username = user.username;
+    sess.username = user.nickname;
     sess.password = bcrypt.hash(user.password, 10);
     sess.type = user.type;
     sess.rules = Abilities.GetRulesFor(user);

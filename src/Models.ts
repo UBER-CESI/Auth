@@ -6,32 +6,55 @@ import { userInfo } from "os"
 
 
 export interface Account {
-    id: number,
-    idOwner: number
+    id: string,
+    idOwner: string
 }
 export interface User {
-    id: number;
-    username: string;
+    id: string;
+    nickname: string;
+    firstName: string;
+    lastName: string;
     email: string;
     password: string;
     type: UserType;
+    phoneNumber: string
 }
 export enum UserType {
-    FinalUser = "FinalUser",
+    Custommer = "Custommer",
     Deliverer = "Deliverer",
-    Restaurateur = "Restaurateur",
+    Restaurant = "Restaurant",
     Developper = "Developper",
     Commercial = "Commercial",
     Technician = "Technician"
 }
 
 export interface Order {
-    id: number,
-    idOwner: number,
-    idRestaurant: number,
-    idDeliverer: number,
-    status: OrderStatus
+    id: string,
+    customerId: string,
+    restaurantId: string,
+    totalPrice: number,
+    tipAmount: number,
+    idDeliverer: string,
+    status: OrderStatus,
+    listItems: Array<Items>
 
+}
+export interface Items {
+    name?: string,
+    descriptions?: string,
+    allergens?: Array<string>,
+    menuItems?: Array<string>,
+    options?: Array<Option>,
+}
+export interface Option {
+    name: string,
+    multiple: boolean,
+    required: boolean,
+    values: Array<Values>
+}
+export interface Values {
+    value: string,
+    priceOffset: number
 }
 export enum OrderStatus {
     Payed = "Payed",
@@ -41,13 +64,10 @@ export enum OrderStatus {
     Delivered = "Delivered",
 }
 
-export interface OrderArticles {
-    idArticle: number,
-    idOrder: Number
-}
+
 export interface Article {
-    id: number,
-    idRestaurant: number,
+    id: string,
+    idRestaurant: string,
     name: string,
     price: number,
     type: ArticleType
@@ -59,23 +79,27 @@ export enum ArticleType {
     SideDish = "SideDish"
 }
 export interface ArticleMenu {
-    idArticle: number,
-    idMenu: number
+    idArticle: string,
+    idMenu: string
 }
 export interface menuOrder {
 
-    idOrder: number,
-    idMenu: number
+    idOrder: string,
+    idMenu: string
 }
 export interface Menu {
-    id: number,
-    idRestaurant: number,
+    id: string,
+    idRestaurant: string,
     name: string,
     price: number,
 }
 export interface Restaurants {
-    id: number,
+    id: string,
+    userId: string,
     name: string,
+    address: string,
+    phoneNumber: string,
+    email: string
 }
 
 
