@@ -14,8 +14,8 @@ const serverType = {
 
 }
 export interface AxiosReturn {
-    data: AxiosResponse<any, any>,
-    error: boolean,
+    data?: AxiosResponse<any, any>,
+    error?: boolean,
     status?: number
 
 }
@@ -60,10 +60,11 @@ export function CreateCustomer(user: Models.User): Promise<AxiosReturn> {
             status: (response.status === undefined) ? 200 : response.status
         }
     }).catch((e) => {
+
         return {
             error: true,
             data: e,
-            status: (e.response.status === undefined) ? 200 : e.response.status
+            status: 500
         }
     });
 

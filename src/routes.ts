@@ -19,8 +19,7 @@ interface IdAbility {
 
 
 module.exports = function (app) {
-    //custommer
-
+    //createCustommer
     app.put('/customer', async function (req, res) {
         if (!req.session.username) {
             res.status(401).send("User is not logged in")
@@ -45,6 +44,7 @@ module.exports = function (app) {
         }
         res.send(dbRes.data)
     });
+    //getCustommer
     app.get('/customer', async function (req, res) {
         if (!req.session.username) {
             res.send(401, "User is not logged in")
