@@ -14,7 +14,8 @@ const abilities: { [K: string]: Function } = {
     Restaurateur: GetRestaurateurAbilities,
     Developper: GetDevelopperAbilities,
     Commercial: GetComemrcialAbilities,
-    Technician: GetTechnicianAbilities
+    Technician: GetTechnicianAbilities,
+    Admin: GetAdminAbilities
 }
 
 
@@ -72,6 +73,12 @@ function GetTechnicianAbilities(user) {
     can('read', 'connectionLogs');
     can('read', 'serverPerformanceStats');
     can('read', 'componentDownloadsLogs');
+    return rules;
+}
+function GetAdminAbilities(user) {
+    const { can, cannot, rules } = new AbilityBuilder(Ability);
+    can('manage', 'all');
+
     return rules;
 }
 

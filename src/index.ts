@@ -29,6 +29,16 @@ const DelivererUser: Models.User = {
     type: Models.UserType.Deliverer,
     phoneNumber: "+33625456984"
 }
+const AdminUser: Models.User = {
+    id: "3",
+    email: "a@a",
+    nickname: "admin",
+    firstName: "admin",
+    lastName: "admin",
+    password: " ",
+    type: Models.UserType.Admin,
+    phoneNumber: "+33625456984"
+}
 
 
 const server = app.listen(process.env.PORT || 3000, () => {
@@ -43,7 +53,7 @@ app.use(session({
     secret: 'X5ix1MylhUTBWRU',
     saveUninitialized: true,
     resave: true,
-    cookie: { maxAge: 10000 }, // in miliseconds
+    cookie: { maxAge: 1000000 }, // in miliseconds
 }));
 
 app.use(bodyParser.json());
@@ -66,15 +76,20 @@ app.post('/login', (req, res) => {
         InstanciateSession(FinalUser, req.session);
         console.log(req.session.username);
 
-
     } else {
         if (DelivererUser.email === req.body.email && DelivererUser.password === req.body.password) {
             InstanciateSession(DelivererUser, req.session);
             console.log(req.session.username);
 
         } else {
-            res.render('wrongId.ejs', { name: req.body.email, password: req.body.password });
-            return;
+            if (AdminUser.email === req.body.email && AdminUser.password === req.body.password) {
+                InstanciateSession(AdminUser, req.session);
+                console.log(req.session.username);
+            } else {
+                res.render('wrongId.ejs', { name: req.body.email, password: req.body.password });
+                return;
+            }
+
         }
     }
     const ability = new Ability(req.session.rules);

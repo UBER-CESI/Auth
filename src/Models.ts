@@ -10,7 +10,7 @@ export interface Account {
     idOwner: string
 }
 export interface User {
-    id: string;
+    id?: string;
     nickname: string;
     firstName: string;
     lastName: string;
@@ -25,7 +25,8 @@ export enum UserType {
     Restaurant = "Restaurant",
     Developper = "Developper",
     Commercial = "Commercial",
-    Technician = "Technician"
+    Technician = "Technician",
+    Admin = "Admin"
 }
 
 export interface Order {
@@ -89,7 +90,8 @@ export interface menuOrder {
 }
 export interface Menu {
     id: string,
-    idRestaurant: string,
+    restaurantId: string,
+    items: Array<string>,
     name: string,
     price: number,
 }

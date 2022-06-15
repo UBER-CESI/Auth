@@ -24,9 +24,10 @@
     "ts-node-dev": "^2.0.0"
   },
   "scripts": {
-    "dev": "nodemon --watch src -e js,ts,json --exec \"ts-node src/index.ts\"",
+    "dev": "env-cmd nodemon --watch src -e js,ts,json --exec \"ts-node src/index.ts\"",
     "build": "tsup src/index.ts --format cjs --clean",
     "start": "node dist/index.js",
-    "test": "mocha -r ts-node/register tests/**/*.ts"
+    "test": "mocha -r ts-node/register tests/**/*.ts",
+    "test:dev": "env-cmd mocha -r ts-node/register tests/**/*.ts"
   }
 }

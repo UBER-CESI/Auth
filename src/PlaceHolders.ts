@@ -43,3 +43,10 @@ export const order: Models.Order = {
 
     }]
 }
+export const menu: Models.Menu = {
+    id: "placeholder",
+    restaurantId: "placeholder",
+    items: ["placeholder", "placeholder"],
+    name: "placeholder",
+    price: 0
+}

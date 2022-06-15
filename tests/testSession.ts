@@ -9,9 +9,9 @@ import { assert } from 'console';
 
 
 const FinalUser: Models.User = {
-    id: 1,
+    id: "1",
     email: "FinalUser@gmail.com",
-    username: "Marcus",
+    nickname: "Marcus",
     firstName: "Marcus",
     lastName: "BELMONT",
     password: " ",
@@ -19,9 +19,9 @@ const FinalUser: Models.User = {
     phoneNumber: "+33625456984"
 };
 const DelivererUser: Models.User = {
-    id: 2,
+    id: "2",
     email: "Deliverer@gmail.com",
-    username: "François",
+    nickname: "François",
     firstName: "François",
     lastName: "PIGNON",
     password: " ",
@@ -70,7 +70,7 @@ describe("Sessions", async () => {
 
 
             return connector(requestGetMyUsername).then((response) => {
-                expect(response.data).to.equal(FinalUser.username);
+                expect(response.data).to.equal(FinalUser.nickname);
             });
 
         });
