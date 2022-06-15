@@ -1,11 +1,12 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { json } from "body-parser";
 import { response } from "express";
+import { request } from "http";
 import * as Models from "../Models";
 import *  as ph from "../PlaceHolders"
 
 
-const serverType = {
+export const serverType = {
     customer: process.env.ADDRESSES_CUSTOMERS?.split(","),
     restaurants: process.env.ADDRESSES_RESTAURANTS?.split(","),
     deliverers: process.env.ADDRESSES_DELIVERERS?.split(","),
@@ -20,7 +21,23 @@ export interface AxiosReturn {
 
 }
 
+function AskBDD(config): Promise<AxiosReturn> {
 
+    return axios(config).then((response) => {
+
+        return {
+            error: false,
+            data: response.data,
+            status: (response.status === undefined) ? 200 : response.status
+        }
+    }).catch((e) => {
+        return {
+            error: true,
+            data: e,
+            status: 500
+        }
+    })
+}
 
 
 var addressInUse = 0;
@@ -48,11 +65,12 @@ export function CreateCustomer(user: Models.User): Promise<AxiosReturn> {
         data: {
             "email": user.email,
             "nickname": user.nickname,
-            "firstname": user.firstName,
-            "lastname": user.lastName,
+            "firstname": user.firstname,
+            "lastname": user.lastname,
             "phoneNumber": user.phoneNumber
         }
     };
+    console.log(config.data)
     return axios(config).then((response) => {
         return {
             error: false,
@@ -74,60 +92,55 @@ export function CreateCustomer(user: Models.User): Promise<AxiosReturn> {
 
 }
 
-export function GetCustomer(id: string): Promise<AxiosReturn> {
+export function Get(id: string, item?: string[]): Promise<AxiosReturn> {
     const config = {
         method: "GET",
         headers: { "Content-Type": "application/json" },
-        url: getLoadBalancingAddress(serverType.customer) + "/" + id,
+        url: getLoadBalancingAddress(item) + "/" + id,
     };
-    return axios(config).then((response) => {
-
-        return {
-            error: false,
-            data: response.data,
-            status: (response.status === undefined) ? 200 : response.status
-        }
-    }).catch((e) => {
-        return {
-            error: true,
-            data: e,
-            status: (e.response.status === undefined) ? 200 : e.response.status
-        }
-    })
+    return AskBDD(config);
 }
-/*
-export function UpdateCustomer(user: Models.User): Models.User {
+
+export function UpdateCustomer(user: Models.User): Promise<AxiosReturn> {
+
+    var dataUp = JSON.stringify(user)
+
+    console.log(dataUp)
     const config = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        url: getLoadBalancingAddress(serverType.custommer) + "/" + user.type.toLowerCase() + "/" + user.id,
-        data: {
-            "email": user.email,
-            "nickname": user.nickname,
-            "firstname": user.firstName,
-            "lastname": user.lastName,
-            "phonenumber": user.phoneNumber,
-        }
-    };
-    return ph.user;
+        url: getLoadBalancingAddress(serverType.customer) + "/" + user.id,
+        data: dataUp
+    }
+    return AskBDD(config);
 }
-export function DeleteUser(user: Models.User) {
+
+export function Delete(id: string, item?: string[]): Promise<AxiosReturn> {
     const config = {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        url: getLoadBalancingAddress(serverType.custommer) + "/" + user.type.toLowerCase() + user.id,
-
+        url: getLoadBalancingAddress(item) + "/" + id,
     };
+    return AskBDD(config);
 }
-export function GetCustommerHistory(id: string): Array<Models.Order> {
+export function GetHistory(id: string, item?: string[]): Promise<AxiosReturn> {
     const config = {
         method: "GET",
         headers: { "Content-Type": "application/json" },
-        url: getLoadBalancingAddress(serverType.custommer) + "/custommer/" + id + "/history",
+        url: getLoadBalancingAddress(item) + "/" + id + "/history",
+    };
+    return AskBDD(config)
+}
+export function SuspendCustomer(id: string): Promise<AxiosReturn> {
+    const config = {
+        method: "SUSPEND",
+        headers: { "Content-Type": "application/json" },
+        url: getLoadBalancingAddress(serverType.customer) + "/" + id + "/suspend"
 
     };
-    return [ph.order, ph.order]
+    return AskBDD(config);
 }
+/*
 export function SuspendCustommer(user: Models.User) {
     const config = {
         method: "POST",

@@ -12,10 +12,10 @@ const FinalUser: Models.User = {
     id: "1",
     email: "FinalUser@gmail.com",
     nickname: "Marcus",
-    firstName: "Marcus",
-    lastName: "BELMONT",
+    firstname: "Marcus",
+    lastname: "BELMONT",
     password: " ",
-    type: Models.UserType.Custommer,
+    type: Models.UserType.Customer,
     phoneNumber: "+33625456984"
 };
 
@@ -23,8 +23,8 @@ const DelivererUser: Models.User = {
     id: "2",
     email: "Deliverer@gmail.com",
     nickname: "François",
-    firstName: "François",
-    lastName: "PIGNON",
+    firstname: "François",
+    lastname: "PIGNON",
     password: " ",
     type: Models.UserType.Deliverer,
     phoneNumber: "+33625456984"
@@ -33,8 +33,8 @@ const AdminUser: Models.User = {
     id: "3",
     email: "a@a",
     nickname: "admin",
-    firstName: "admin",
-    lastName: "admin",
+    firstname: "admin",
+    lastname: "admin",
     password: " ",
     type: Models.UserType.Admin,
     phoneNumber: "+33625456984"

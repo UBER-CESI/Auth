@@ -7,7 +7,7 @@ export const user: Models.User = {
     nickname: "placeholder",
     password: "placeholder",
     phoneNumber: "placeholder",
-    type: Models.UserType.Custommer
+    type: Models.UserType.Customer
 }
 export const restaurant: Models.Restaurants = {
     address: "placeholder",

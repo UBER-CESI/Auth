@@ -9,7 +9,7 @@ export function GetRulesFor(user: Models.User) {
 }
 
 const abilities: { [K: string]: Function } = {
-    FinalUser: GetFinalUserAbilities,
+    Customer: GetCustomerAbilities,
     Deliverer: GetDelivererAbilities,
     Restaurateur: GetRestaurateurAbilities,
     Developper: GetDevelopperAbilities,
@@ -19,7 +19,7 @@ const abilities: { [K: string]: Function } = {
 }
 
 
-function GetFinalUserAbilities(user) {
+function GetCustomerAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
     can('do', 'hoola-hoop');
     can('manage', 'account', { idOwner: user.Id });

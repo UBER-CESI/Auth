@@ -11,16 +11,18 @@ export interface Account {
 }
 export interface User {
     id?: string;
+    idType?: string;
     nickname: string;
-    firstName: string;
-    lastName: string;
+    firstname: string;
+    lastname: string;
     email: string;
     password: string;
     type: UserType;
     phoneNumber: string
+    suspendedAt?: string
 }
 export enum UserType {
-    Custommer = "Custommer",
+    Customer = "Customer",
     Deliverer = "Deliverer",
     Restaurant = "Restaurant",
     Developper = "Developper",
