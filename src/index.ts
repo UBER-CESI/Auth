@@ -37,7 +37,9 @@ const AdminUser: Models.User = {
     lastname: "admin",
     password: " ",
     type: Models.UserType.Admin,
-    phoneNumber: "+33625456984"
+    phoneNumber: "+33625456984",
+    idType: "megauser",
+    suspendedAt: ""
 }
 
 
@@ -73,64 +75,33 @@ app.get('/', (req, res) => {
 
 app.post('/login', (req, res) => {
     if (FinalUser.email === req.body.email && FinalUser.password === req.body.password) {
-        InstanciateSession(FinalUser, req.session);
-        console.log(req.session.username);
+        res.json(InstanciateSession(FinalUser, req.session));
+        console.log(Date.now().toString() + " | " + FinalUser.id);
 
     } else {
         if (DelivererUser.email === req.body.email && DelivererUser.password === req.body.password) {
-            InstanciateSession(DelivererUser, req.session);
-            console.log(req.session.username);
+            var ret: Models.UserWoPasswd = InstanciateSession(DelivererUser, req.session)
+            res.json(ret);
+            console.log(Date.now().toString() + " | " + DelivererUser.id);
 
         } else {
             if (AdminUser.email === req.body.email && AdminUser.password === req.body.password) {
-                InstanciateSession(AdminUser, req.session);
-                console.log(req.session.username);
+                var ret: Models.UserWoPasswd = InstanciateSession(AdminUser, req.session)
+                res.json(ret);
+                console.log(ret)
             } else {
-                res.render('wrongId.ejs', { name: req.body.email, password: req.body.password });
-                return;
+                res.status(404).send('wrong id');
+
             }
 
         }
     }
-    const ability = new Ability(req.session.rules);
-
-    res.render('AlreadyLoggedIn.ejs', {
-        name: req.session.username,
-        type: req.session.type,
-        canHoolaHoop: ability.can('do', 'hoola-hoop'),
-        canBetterHoolaHoop: ability.can('do', 'better hoola-hoop')
-    });
-
 
 });
-app.get('/login', (req, res) => {
-    var sess = req.session;
-    if (sess.username) {
-        const ability = new Ability(req.session.rules);
-        res.render('AlreadyLoggedIn.ejs', {
-            name: req.session.username,
-            type: req.session.type,
-            canHoolaHoop: ability.can('do', 'hoola-hoop'),
-            canBetterHoolaHoop: ability.can('do', 'better hoola-hoop')
-        });
-    } else {
-        res.render('Login.ejs');
-    }
-
-})
 
 
-app.get('/admin', (req, res) => {
-    var sess = req.session;
-    if (sess.username) {
-        res.write(`<h1>Hello ${sess.username} h1><br>`);
-        res.end('' + '>Logout');
-    }
-    else {
-        res.write('Please login first.');
-        res.end('' + '>Login');
-    }
-});
+
+
 app.get('/login/canDoHoolaHoop', (req, res) => {
     var sess = req.session;
     if (sess.username) {
@@ -151,8 +122,16 @@ app.get('/login/canDoBetterHoolaHoop', (req, res) => {
 })
 app.get('/login/getMySessionUsername', (req, res) => {
     var sess = req.session;
-    if (sess.username) {
-        res.send(sess.username);
+    if (sess.email) {
+        res.send(sess.nickname);
+    } else {
+        res.send("notConnected");
+    }
+})
+app.post('/getUserFromSession', (req, res) => {
+    var sess = req.session;
+    if (sess.email) {
+        res.json(getUserFromSession(req.session));
     } else {
         res.send("notConnected");
     }
@@ -160,9 +139,10 @@ app.get('/login/getMySessionUsername', (req, res) => {
 app.post('/logout', (req, res) => {
     req.session.destroy((err) => {
         if (err) {
-            return console.log(err);
+            res.status(500).send(err)
+            return
         }
-        res.redirect('/');
+        res.status(200).json()
     });
 });
 
@@ -171,13 +151,34 @@ app.post('/logout', (req, res) => {
 
 
 
-function InstanciateSession(user: Models.User, sess) {
+function InstanciateSession(user: Models.User, sess): Models.UserWoPasswd {
 
-    sess.username = user.nickname;
-    sess.password = bcrypt.hash(user.password, 10);
+    sess.nickname = user.nickname;
+    sess.firstname = user.nickname;
+    sess.lastname = user.lastname;
+    sess.email = user.email;
+    sess.phoneNumber = user.phoneNumber;
+    sess.userId = user.id;
     sess.type = user.type;
+    sess.suspendedAt = user.suspendedAt;
+
     sess.rules = Abilities.GetRulesFor(user);
-    console.log(sess.rules)
+    return getUserFromSession(sess);
+
+
+}
+function getUserFromSession(session): Models.UserWoPasswd {
+    return {
+        userId: session.userId,
+        nickname: session.nickname,
+        firstname: session.firstname,
+        lastname: session.lastname,
+        email: session.email,
+        phoneNumber: session.phoneNumber,
+        type: session.type,
+        idType: session.idType,
+        suspendedAt: session.suspendedAt
+    }
 }
 export default {
     async spawn() { },
