@@ -18,7 +18,7 @@ interface IdAbility {
 
 
 module.exports = function (app) {
-    //createCustommer
+    //createCustomer
     app.put('/customer', async function (req, res) {
         if (!req.session.username) {
             res.status(401).send("User is not logged in")
@@ -44,7 +44,7 @@ module.exports = function (app) {
         }
         res.send(dbRes.data)
     });
-    //getCustommer
+    //getCustomer
     app.get('/customer', async function (req, res) {
         if (!req.session.username) {
             res.status(401).send("User is not logged in")
@@ -67,7 +67,7 @@ module.exports = function (app) {
         }
         res.send(dbRes.data)
     });
-    //deleteCustommer
+    //deleteCustomer
     app.delete('/customer', async function (req, res) {
         if (!req.session.username) {
             res.status(401).send("User is not logged in")
@@ -88,7 +88,7 @@ module.exports = function (app) {
         }
         res.send(dbRes.data)
     });
-    //updateCustommer
+    //updateCustomer
     app.post('/customer', async function (req, res) {
 
         if (!req.session.username) {
@@ -126,7 +126,7 @@ module.exports = function (app) {
         }
         res.send(dbRes.data)
     });
-    //getCustommerHistory
+    //getCustomerHistory
     app.get('/customer/history', async function (req, res) {
 
         if (!req.session.username) {
@@ -153,6 +153,7 @@ module.exports = function (app) {
         }
         res.send(dbRes.data)
     });
+    //suspendCustomer
     app.post('/customer/suspend', async function (req, res) {
 
         if (!req.session.username) {
@@ -160,21 +161,22 @@ module.exports = function (app) {
             return;
         }
         const ab = new Ability(req.session.rules);
-        /*
         if (req.body.id === undefined || req.body.id == "") {
             res.status(401).send("Id is blank. specify the id")
             return
-        }*/
+        }
+        var sus;
+
+        (req.body.suspend.toLowerCase() == "true") ? sus = " " : (req.body.suspend.toLowerCase() == "false") ? sus = "" : () => { res.status(401).send("suspend is not a boolean"); return };
         const account = {
-            idOwner: (req.body.id === undefined) ? " " : req.body.id
+            idOwner: req.body.id
         }
         if (!ab.can('suspend', account)) {
             res.status(401).send("User " + req.session.username + " cannot do that!")
             return
         }
 
-
-        let dbRes: AxiosReturn = await DB.SuspendCustomer(account.idOwner);
+        let dbRes: AxiosReturn = await DB.SuspendCustomer(account.idOwner, sus);
         if (dbRes.error) {
             res.status(dbRes.status).send(dbRes.data)
             return;

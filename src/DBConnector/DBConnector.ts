@@ -131,11 +131,12 @@ export function GetHistory(id: string, item?: string[]): Promise<AxiosReturn> {
     };
     return AskBDD(config)
 }
-export function SuspendCustomer(id: string): Promise<AxiosReturn> {
+export function SuspendCustomer(id: string, sus: string): Promise<AxiosReturn> {
     const config = {
-        method: "SUSPEND",
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        url: getLoadBalancingAddress(serverType.customer) + "/" + id + "/suspend"
+        url: getLoadBalancingAddress(serverType.customer) + "/" + id + "/suspend",
+        data: { "suspend": sus }
 
     };
     return AskBDD(config);
