@@ -9,6 +9,17 @@ export interface Account {
     id: string,
     idOwner: string
 }
+export interface UserWoPasswd {
+    userId?: string;
+    idType?: string;
+    nickname: string;
+    firstname: string;
+    lastname: string;
+    email: string;
+    type: UserType;
+    phoneNumber: string
+    suspendedAt?: string
+}
 export interface User {
     id?: string;
     idType?: string;
