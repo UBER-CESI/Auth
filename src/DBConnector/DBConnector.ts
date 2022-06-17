@@ -8,15 +8,19 @@ import *  as ph from "../PlaceHolders"
 
 const serverType: { [K: string]: string[] | undefined } = {
     customer: process.env.ADDRESSES_CUSTOMERS?.split(","),
-    restaurants: process.env.ADDRESSES_RESTAURANTS?.split(","),
-    deliverers: process.env.ADDRESSES_DELIVERERS?.split(","),
-    orders: process.env.ADRESSES_ORDERS?.split(",")
+    restaurant: process.env.ADDRESSES_RESTAURANTS?.split(","),
+    deliverer: process.env.ADDRESSES_DELIVERERS?.split(","),
+    order: process.env.ADRESSES_ORDERS?.split(","),
+    menu: process.env.ADRESSES_MENUS?.split(","),
+    item: process.env.ADRESSES_ITEMS?.split(",")
 }
 export enum typeEnum {
     customer = "customer",
-    restaurants = "restaurants",
-    deliverers = "deliverers",
-    orders = "orders"
+    restaurant = "restaurant",
+    deliverer = "deliverer",
+    order = "order",
+    menu = "menu",
+    item = "item"
 }
 
 export interface AxiosReturn {
@@ -32,15 +36,18 @@ function getDataFromType(model, type: typeEnum): string | undefined {
         case typeEnum.customer:
             return JSON.stringify(model, ['email', 'nickname', 'firstname', 'lastname', 'phoneNumber'])
             break;
-        case typeEnum.deliverers:
+        case typeEnum.deliverer:
 
             return JSON.stringify(model, ['name'])
             break;
-        case typeEnum.orders:
+        case typeEnum.order:
             return JSON.stringify(model, ['customerId', 'delivererId', 'restaurantId', 'totalPrice', 'tipAmount', 'status', 'items', 'date', 'num'])
             break;
-        case typeEnum.restaurants:
+        case typeEnum.restaurant:
             return JSON.stringify(model, ['name', 'address', 'phoneNumber', 'email'])
+            break;
+        case typeEnum.menu:
+            return JSON.stringify(model, ['name', 'description', 'items', 'price', 'restaurantId'])
             break;
         default:
             return "";
@@ -70,6 +77,7 @@ function AskBDD(config): Promise<AxiosReturn> {
 
 var addressInUse = 0;
 export function getLoadBalancingAddress(type: typeEnum): string {
+    console.log(type)
     addressInUse++;
     const addresses = serverType[type]
     if (addresses) {
@@ -115,7 +123,7 @@ export function Create(model, type: typeEnum, restUrl: string) {
     return AskBDD(config);
 }
 export function Update(model, type: typeEnum, restUrl: string) {
-
+    console.log(getDataFromType(model, type))
 
     const config = {
         method: "POST",

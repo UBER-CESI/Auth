@@ -24,12 +24,7 @@ class account { // business entity
 module.exports = function (app) {
     //createCustomer
     app.put('/customer', async function (req, res) {
-        if (!req.session.email) {
-            res.status(401).json("User is not logged in")
-            return;
-        }
         var customer: Models.User = req.body;
-
         //createUser then createCustomer
         let dbRes: AxiosReturn = await DB.Create(customer, DB.typeEnum.customer, " ");
         res.status(dbRes.status).send(dbRes.data);
@@ -158,7 +153,7 @@ module.exports = function (app) {
             res.status(401).send("User " + req.session.username + " cannot do that!")
             return
         }
-        let dbRes: AxiosReturn = await DB.Get(restaurant.idOwner, DB.typeEnum.restaurants, "");
+        let dbRes: AxiosReturn = await DB.Get(restaurant.idOwner, DB.typeEnum.restaurant, "");
         res.status(dbRes.status).send(dbRes.data)
 
     });
@@ -174,7 +169,7 @@ module.exports = function (app) {
             res.status(401).send("User " + req.session.username + " cannot do that!")
             return
         }
-        let dbRes: AxiosReturn = await DB.Create(restaurant, DB.typeEnum.restaurants, "");
+        let dbRes: AxiosReturn = await DB.Create(restaurant, DB.typeEnum.restaurant, "");
         res.status(dbRes.status).send(dbRes.data);
     });
     //updateRestaurant
@@ -192,7 +187,7 @@ module.exports = function (app) {
             return
         }
 
-        let dbRes: AxiosReturn = await DB.Update(restaurant, DB.typeEnum.restaurants, "");
+        let dbRes: AxiosReturn = await DB.Update(restaurant, DB.typeEnum.restaurant, "");
         res.status(dbRes.status).send(dbRes.data)
 
     });
@@ -210,7 +205,7 @@ module.exports = function (app) {
             res.status(401).send("User " + req.session.username + " cannot do that!")
             return
         }
-        let dbRes: AxiosReturn = await DB.Delete(restaurant.userId, DB.typeEnum.restaurants, "");
+        let dbRes: AxiosReturn = await DB.Delete(restaurant.userId, DB.typeEnum.restaurant, "");
         res.status(dbRes.status).send(dbRes.data)
     });
     //getStatsRestaurant
@@ -228,7 +223,7 @@ module.exports = function (app) {
             res.status(401).send("User " + req.session.username + " cannot do that!")
             return
         }
-        let dbRes: AxiosReturn = await DB.Get(restaurantStatistics.userId, DB.typeEnum.restaurants, "/stats");
+        let dbRes: AxiosReturn = await DB.Get(restaurantStatistics.userId, DB.typeEnum.restaurant, "/stats");
         res.status(dbRes.status).send(dbRes.data)
     });
     //getHistoryRestaurant
@@ -247,12 +242,11 @@ module.exports = function (app) {
             res.status(401).send("User " + req.session.username + " cannot do that!")
             return
         }
-        let dbRes: AxiosReturn = await DB.Get(orderHistory.idRestaurant, DB.typeEnum.restaurants, "/history");
+        let dbRes: AxiosReturn = await DB.Get(orderHistory.idRestaurant, DB.typeEnum.restaurant, "/history");
         res.status(dbRes.status).send(dbRes.data)
     });
-    //getListMenuRestaurant
+    //getListMenuByRestaurant
     app.get('/restaurant/:id/menu', async function (req, res) {
-
         if (!req.session.email) {
             res.status(401).send("User is not logged in")
             return;
@@ -266,7 +260,7 @@ module.exports = function (app) {
             res.status(401).send("User " + req.session.username + " cannot do that!")
             return
         }
-        let dbRes: AxiosReturn = await DB.Get(menu.idRestaurant, DB.typeEnum.restaurants, "/menu");
+        let dbRes: AxiosReturn = await DB.Get(menu.idRestaurant, DB.typeEnum.restaurant, "/menu");
         res.status(dbRes.status).send(dbRes.data)
     });
     //CreateMenu
@@ -285,7 +279,159 @@ module.exports = function (app) {
             res.status(401).send("User " + req.session.username + " cannot do that!")
             return
         }
-        let dbRes: AxiosReturn = await DB.Create(menu, DB.typeEnum.restaurants, menu.restaurantId + "/menu");
+        let dbRes: AxiosReturn = await DB.Create(menu, DB.typeEnum.restaurant, menu.restaurantId + "/menu");
+        res.status(dbRes.status).send(dbRes.data)
+    });
+    //getDishesByRestaurant
+    app.get('/restaurant/:id/item', async function (req, res) {
+        if (!req.session.email) {
+            res.status(401).send("User is not logged in")
+            return;
+        }
+        const ab = new Ability(req.session.rules);
+
+        const menu = {
+            idRestaurant: req.params.id
+        }
+        if (!ab.can('read', menu)) {
+            res.status(401).send("User " + req.session.username + " cannot do that!")
+            return
+        }
+        let dbRes: AxiosReturn = await DB.Get(menu.idRestaurant, DB.typeEnum.restaurant, "/item");
+        res.status(dbRes.status).send(dbRes.data)
+    });
+    //createDishByRestaurant
+    app.put('/restaurant/:id/item', async function (req, res) {
+
+        if (!req.session.email) {
+            res.status(401).send("User is not logged in")
+            return;
+        }
+        const ab = new Ability(req.session.rules);
+
+        const menu = req.body
+        menu.restaurantId = req.params.id
+        console.log(menu.items);
+        if (!ab.can('create', menu)) {
+            res.status(401).send("User " + req.session.username + " cannot do that!")
+            return
+        }
+        let dbRes: AxiosReturn = await DB.Create(menu, DB.typeEnum.restaurant, menu.restaurantId + "/item");
+        res.status(dbRes.status).send(dbRes.data)
+    });
+
+
+    //getMenu
+    app.get('/restaurant/menu/:id', async function (req, res) {
+
+        if (!req.session.email) {
+            res.status(401).send("User is not logged in")
+            return;
+        }
+        console.log(req.session.email)
+        const ab = new Ability(req.session.rules);
+
+        const menu = {
+            idRestaurant: req.params.id
+        }
+        if (!ab.can('read', menu)) {
+            res.status(401).send("User " + req.session.username + " cannot do that!")
+            return
+        }
+        let dbRes: AxiosReturn = await DB.Get(menu.idRestaurant, DB.typeEnum.menu, "");
+        res.status(dbRes.status).send(dbRes.data)
+    });
+    //updateMenu
+    app.post('/restaurant/menu/:id', async function (req, res) {
+
+        if (!req.session.email) {
+            res.status(401).send("User is not logged in")
+            return;
+        }
+        const ab = new Ability(req.session.rules);
+        const restaurant = req.body
+        restaurant.id = req.params.id
+        if (!ab.can('update', restaurant)) {
+            res.status(401).send("User " + req.session.username + " cannot do that!")
+            return
+        }
+
+        let dbRes: AxiosReturn = await DB.Update(restaurant, DB.typeEnum.menu, "");
+        res.status(dbRes.status).send(dbRes.data)
+
+    });
+    //deletMenu
+    app.delete('/restaurant/menu/:id', async function (req, res) {
+        if (!req.session.email) {
+            res.status(401).send("User is not logged in")
+            return;
+        }
+        const ab = new Ability(req.session.rules);
+        const restaurant = {
+            userId: req.params.id
+        }
+        if (!ab.can('delete', restaurant)) {
+            res.status(401).send("User " + req.session.username + " cannot do that!")
+            return
+        }
+        let dbRes: AxiosReturn = await DB.Delete(restaurant.userId, DB.typeEnum.menu, "");
+        res.status(dbRes.status).send(dbRes.data)
+    });
+
+
+    //getDish
+    app.get('/restaurant/item/:id', async function (req, res) {
+
+        if (!req.session.email) {
+            res.status(401).send("User is not logged in")
+            return;
+        }
+        const ab = new Ability(req.session.rules);
+
+        const menu = {
+            idRestaurant: req.params.id
+        }
+        if (!ab.can('read', menu)) {
+            res.status(401).send("User " + req.session.username + " cannot do that!")
+            return
+        }
+        let dbRes: AxiosReturn = await DB.Get(menu.idRestaurant, DB.typeEnum.item, "");
+        res.status(dbRes.status).send(dbRes.data)
+    });
+    //updateDish
+    app.post('/restaurant/item/:id', async function (req, res) {
+
+        if (!req.session.email) {
+            res.status(401).send("User is not logged in")
+            return;
+        }
+        const ab = new Ability(req.session.rules);
+        const restaurant = req.body
+        restaurant.id = req.params.id
+        if (!ab.can('update', restaurant)) {
+            res.status(401).send("User " + req.session.username + " cannot do that!")
+            return
+        }
+
+        let dbRes: AxiosReturn = await DB.Update(restaurant, DB.typeEnum.item, "");
+        res.status(dbRes.status).send(dbRes.data)
+
+    });
+    //deletDish
+    app.delete('/restaurant/item/:id', async function (req, res) {
+        if (!req.session.email) {
+            res.status(401).send("User is not logged in")
+            return;
+        }
+        const ab = new Ability(req.session.rules);
+        const restaurant = {
+            userId: req.params.id
+        }
+        if (!ab.can('delete', restaurant)) {
+            res.status(401).send("User " + req.session.username + " cannot do that!")
+            return
+        }
+        let dbRes: AxiosReturn = await DB.Delete(restaurant.userId, DB.typeEnum.item, "");
         res.status(dbRes.status).send(dbRes.data)
     });
 
@@ -304,7 +450,7 @@ module.exports = function (app) {
             res.status(401).send("User " + req.session.username + " cannot do that!")
             return
         }
-        let dbRes: AxiosReturn = await DB.Get(restaurant.idOwner, DB.typeEnum.orders, "");
+        let dbRes: AxiosReturn = await DB.Get(restaurant.idOwner, DB.typeEnum.order, "");
         res.status(dbRes.status).send(dbRes.data)
 
     });
@@ -320,7 +466,7 @@ module.exports = function (app) {
             res.status(401).send("User " + req.session.username + " cannot do that!")
             return
         }
-        let dbRes: AxiosReturn = await DB.Create(restaurant, DB.typeEnum.orders, "");
+        let dbRes: AxiosReturn = await DB.Create(restaurant, DB.typeEnum.order, "");
         res.status(dbRes.status).send(dbRes.data);
     });
     //updateOrder
@@ -340,7 +486,7 @@ module.exports = function (app) {
             return
         }
 
-        let dbRes: AxiosReturn = await DB.Update(restaurant, DB.typeEnum.orders, "");
+        let dbRes: AxiosReturn = await DB.Update(restaurant, DB.typeEnum.order, "");
         res.status(dbRes.status).send(dbRes.data)
 
     });
@@ -358,7 +504,7 @@ module.exports = function (app) {
             res.status(401).send("User " + req.session.username + " cannot do that!")
             return
         }
-        let dbRes: AxiosReturn = await DB.Delete(restaurant.userId, DB.typeEnum.orders, "");
+        let dbRes: AxiosReturn = await DB.Delete(restaurant.userId, DB.typeEnum.order, "");
         res.status(dbRes.status).send(dbRes.data)
     });
     //payOrder
@@ -378,7 +524,7 @@ module.exports = function (app) {
             return
         }
 
-        let dbRes: AxiosReturn = await DB.Update(restaurant, DB.typeEnum.orders, "/pay");
+        let dbRes: AxiosReturn = await DB.Update(restaurant, DB.typeEnum.order, "/pay");
         res.status(dbRes.status).send(dbRes.data)
 
     });
@@ -399,7 +545,7 @@ module.exports = function (app) {
             return
         }
 
-        let dbRes: AxiosReturn = await DB.Update(restaurant, DB.typeEnum.orders, "/accept");
+        let dbRes: AxiosReturn = await DB.Update(restaurant, DB.typeEnum.order, "/accept");
         res.status(dbRes.status).send(dbRes.data)
 
     });
@@ -419,7 +565,7 @@ module.exports = function (app) {
             res.status(401).send("User " + req.session.username + " cannot do that!")
             return
         }
-        let dbRes: AxiosReturn = await DB.Get(restaurant.idOwner, DB.typeEnum.deliverers, "");
+        let dbRes: AxiosReturn = await DB.Get(restaurant.idOwner, DB.typeEnum.deliverer, "");
         res.status(dbRes.status).send(dbRes.data)
     });
     //createDeliverer
@@ -434,7 +580,7 @@ module.exports = function (app) {
             res.status(401).send("User " + req.session.username + " cannot do that!")
             return
         }
-        let dbRes: AxiosReturn = await DB.Create(restaurant, DB.typeEnum.deliverers, "");
+        let dbRes: AxiosReturn = await DB.Create(restaurant, DB.typeEnum.deliverer, "");
         res.status(dbRes.status).send(dbRes.data);
     });
     //updateDeliverer
@@ -450,7 +596,7 @@ module.exports = function (app) {
             res.status(401).send("User " + req.session.username + " cannot do that!")
             return
         }
-        let dbRes: AxiosReturn = await DB.Update(restaurant, DB.typeEnum.deliverers, "");
+        let dbRes: AxiosReturn = await DB.Update(restaurant, DB.typeEnum.deliverer, "");
         res.status(dbRes.status).send(dbRes.data)
     });
     //deleteDeliverer
@@ -467,7 +613,7 @@ module.exports = function (app) {
             res.status(401).send("User " + req.session.username + " cannot do that!")
             return
         }
-        let dbRes: AxiosReturn = await DB.Delete(restaurant.userId, DB.typeEnum.deliverers, "");
+        let dbRes: AxiosReturn = await DB.Delete(restaurant.userId, DB.typeEnum.deliverer, "");
         res.status(dbRes.status).send(dbRes.data)
     });
     //getHistoryDeliverer
@@ -486,7 +632,7 @@ module.exports = function (app) {
             res.status(401).send("User " + req.session.username + " cannot do that!")
             return
         }
-        let dbRes: AxiosReturn = await DB.Get(orderHistory.idRestaurant, DB.typeEnum.orders, "/history");
+        let dbRes: AxiosReturn = await DB.Get(orderHistory.idRestaurant, DB.typeEnum.order, "/history");
         res.status(dbRes.status).send(dbRes.data)
     });
 
