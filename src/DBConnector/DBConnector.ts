@@ -111,9 +111,8 @@ export function Delete(id: string, type: typeEnum, restUrl: string): Promise<Axi
     return AskBDD(config);
 }
 export function Create(model, type: typeEnum, restUrl: string) {
-
     var dataUp = JSON.stringify(model)
-
+    console.log(dataUp);
     const config = {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -123,8 +122,6 @@ export function Create(model, type: typeEnum, restUrl: string) {
     return AskBDD(config);
 }
 export function Update(model, type: typeEnum, restUrl: string) {
-    console.log(getDataFromType(model, type))
-
     const config = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
