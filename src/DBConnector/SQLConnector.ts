@@ -1,5 +1,5 @@
 import { callbackify } from "util";
-import { bcrypt } from 'bcrypt'
+const bcrypt = require('bcrypt')
 var mysql = require('mysql')
 
 export var connection = mysql.createConnection({
@@ -8,6 +8,11 @@ export var connection = mysql.createConnection({
     password: 'TWGdFEW5EqLhXiVC',
     database: process.env.DATABASE
 })
+export interface SQLErr {
+    code: string,
+    errno: string,
+    sqlMessage: string
+}
 
 function getSql(query: string) {
     return new Promise((response) => {
@@ -15,9 +20,9 @@ function getSql(query: string) {
             query,
             function (err, rows) {
                 if (err) {
-                    response(err);
+                    response({ code: err.code, errno: err.errno, sqlMessage: err.sqlMessage });
                 } else {
-                    response(rows);
+                    response(rows[0]);
                 }
             }
         )
@@ -25,8 +30,8 @@ function getSql(query: string) {
         return response;
     })
 }
-export async function CreateUser(nickname: string, email: string, password: string) {
-    return getSql('CALL CreateUser("' + nickname + '","' + email + '","' + await bcrypt.hash(password, 10) + '");')
+export async function CreateUser(nickname: string, email: string, password: string, typeUser: string) {
+    return getSql('CALL CreateUser("' + nickname + '","' + email + '","' + await bcrypt.hash(password, 10) + '","' + typeUser + '");')
 }
 export function DeleteUser(idUser: string) {
     return getSql('CALL DeleteUser(' + idUser + ');')

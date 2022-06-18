@@ -23,8 +23,8 @@ const FinalUser: Models.User = {
 const DelivererUser: Models.User = {
     id: "2",
     email: "Deliverer@gmail.com",
-    nickname: "François",
-    firstname: "François",
+    nickname: "Francois",
+    firstname: "Francois",
     lastname: "PIGNON",
     password: " ",
     type: Models.UserType.Deliverer,
@@ -73,7 +73,19 @@ app.get('/', (req, res) => {
     }
     res.render('index.ejs');
 });
+//createUser
+app.put('/user', async function (req, res) {
+    let data = req.body;
+    let sqlRes = await SQL.CreateUser(data.nickname, data.email, data.password, data.typeUser);
+    ((<SQL.SQLErr>sqlRes).errno) ? () => { res.json(sqlRes); return; } :
+        console.log("everything's fine")
+    let alltypes = data.typeUser.split(",")
+    alltypes.forEach(type => {
+        //now go create the other infos depending on the type
+    });
 
+    res.json(sqlRes);
+});
 app.post('/login', async (req, res) => {
     //console.log(await SQL.GetUserById("43"));
     if (FinalUser.email === req.body.email && FinalUser.password === req.body.password) {

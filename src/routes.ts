@@ -4,6 +4,7 @@ import * as Models from "./Models";
 import * as Abilities from './AbilitiesManager'
 import { Ability } from "@casl/ability";
 import { AxiosReturn } from "./DBConnector/DBConnector";
+import { strictEqual } from "assert";
 const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
@@ -68,6 +69,10 @@ module.exports = function (app) {
         }
         res.send(dbRes.data)
     });
+
+
+
+
     //updateCustomer
     app.post('/customer/:id', async function (req, res) {
 
