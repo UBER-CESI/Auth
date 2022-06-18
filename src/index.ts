@@ -7,6 +7,7 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt')
 const app = express();
+import * as SQL from "./DBConnector/SQLConnector"
 
 const FinalUser: Models.User = {
     id: "1",
@@ -73,7 +74,8 @@ app.get('/', (req, res) => {
     res.render('index.ejs');
 });
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
+    //console.log(await SQL.GetUserById("43"));
     if (FinalUser.email === req.body.email && FinalUser.password === req.body.password) {
         res.json(InstanciateSession(FinalUser, req.session));
         console.log(Date.now().toString() + " | " + FinalUser.id);
@@ -82,13 +84,13 @@ app.post('/login', (req, res) => {
         if (DelivererUser.email === req.body.email && DelivererUser.password === req.body.password) {
             var ret: Models.UserWoPasswd = InstanciateSession(DelivererUser, req.session)
             res.json(ret);
-            console.log(Date.now().toString() + " | " + DelivererUser.id);
+
 
         } else {
             if (AdminUser.email === req.body.email && AdminUser.password === req.body.password) {
                 var ret: Models.UserWoPasswd = InstanciateSession(AdminUser, req.session)
                 res.json(ret);
-                console.log(ret)
+
             } else {
                 res.status(404).send('wrong id');
 
