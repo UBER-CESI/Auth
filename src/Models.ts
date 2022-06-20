@@ -33,13 +33,13 @@ export interface User {
     suspendedAt?: string
 }
 export enum UserType {
-    Customer = "Customer",
-    Deliverer = "Deliverer",
-    Restaurant = "Restaurant",
-    Developper = "Developper",
-    Commercial = "Commercial",
-    Technician = "Technician",
-    Admin = "Admin"
+    Customer = "customer",
+    Deliverer = "deliverer",
+    Restaurant = "restaurant",
+    Developper = "developper",
+    Commercial = "commercial",
+    Technician = "technician",
+    Admin = "admin"
 }
 
 export interface Order {

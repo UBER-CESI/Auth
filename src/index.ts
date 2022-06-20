@@ -8,6 +8,9 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt')
 const app = express();
 import * as SQL from "./DBConnector/SQLConnector"
+import * as DB from "./DBConnector/DBConnector"
+import { user } from "./PlaceHolders";
+import { Axios } from "axios";
 
 const FinalUser: Models.User = {
     id: "1",
@@ -59,32 +62,75 @@ app.use(session({
     cookie: { maxAge: 1000000 }, // in miliseconds
 }));
 
+const LinkUser: { [K: string]: Function } = {
+    customer: linkUserToCustomer,
+    restaurant: linkUserToRestaurant,
+    deliverer: linkUserToDeliverer,
+    admin: linkUserToAdmin,
+}
+async function linkUserToAdmin(_userId?: string, data?): Promise<DB.AxiosReturn> {
+    return {}
+
+}
+async function linkUserToCustomer(_userId?: string, data?): Promise<DB.AxiosReturn> {
+    if (data.TypeId) {
+        return await DB.Update({ userId: _userId, id: data.typeId }, DB.typeEnum.customer, "")
+    } else {
+        data.userId = _userId;
+        console.log("data : " + _userId)
+        return await DB.Create(data, DB.typeEnum.customer, "");
+
+
+    }
+
+}
+async function linkUserToRestaurant(_userId?: string, data?): Promise<DB.AxiosReturn> {
+    if (data.TypeId) {
+        return await DB.Update({ userId: _userId, id: data.typeId }, DB.typeEnum.restaurant, "")
+    } else {
+        data.userId = _userId;
+        return await DB.Create(data, DB.typeEnum.restaurant, "")
+    }
+}
+async function linkUserToDeliverer(_userId?: string, data?): Promise<DB.AxiosReturn> {
+    if (data.TypeId) {
+        return await DB.Update({ userId: _userId, id: data.typeId }, DB.typeEnum.deliverer, "")
+    } else {
+        data.userId = _userId;
+        return await DB.Create(data, DB.typeEnum.deliverer, "")
+    }
+
+}
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/views'));
 
 require('./routes')(app);
 
-app.get('/', (req, res) => {
 
-    var sess = req.session;
-    if (sess.username) {
-        return res.redirect('/admin');
-    }
-    res.render('index.ejs');
-});
 //createUser
 app.put('/user', async function (req, res) {
     let data = req.body;
-    let sqlRes = await SQL.CreateUser(data.nickname, data.email, data.password, data.typeUser);
-    ((<SQL.SQLErr>sqlRes).errno) ? () => { res.json(sqlRes); return; } :
-        console.log("everything's fine")
     let alltypes = data.typeUser.split(",")
+    let skip = false;
     alltypes.forEach(type => {
-        //now go create the other infos depending on the type
+        if (!Object.values(Models.UserType).includes(type.toLowerCase())) {
+            res.status(404).send("This type of account does not exists : " + type)
+            skip = true;
+            return;
+        }
     });
+    if (skip) { return };
+    let sqlRes: SQL.SQLRes = await SQL.CreateUser(data.nickname, data.email, data.password, data.typeUser);
+    if (sqlRes.errno) { res.json(sqlRes); return; }
+    var finalObject = sqlRes
+    alltypes.forEach(async type => {
+        var test = await linkUserToCustomer(sqlRes.data?.userId, data)
+        console.log("test ! " + test);
+        finalObject = Object.assign({}, finalObject, test)
 
-    res.json(sqlRes);
+    });
+    res.json(finalObject);
 });
 app.post('/login', async (req, res) => {
     //console.log(await SQL.GetUserById("43"));
