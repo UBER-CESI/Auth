@@ -11,6 +11,7 @@ import * as SQL from "./DBConnector/SQLConnector"
 import * as DB from "./DBConnector/DBConnector"
 import { user } from "./PlaceHolders";
 import { Axios } from "axios";
+import { json } from "body-parser";
 
 const FinalUser: Models.User = {
     id: "1",
@@ -69,11 +70,14 @@ const LinkUser: { [K: string]: Function } = {
     admin: linkUserToAdmin,
 }
 async function linkUserToAdmin(_userId?: string, data?): Promise<DB.AxiosReturn> {
+    console.log("admin")
     return {}
 
 }
-async function linkUserToCustomer(_userId?: string, data?): Promise<DB.AxiosReturn> {
-    if (data.TypeId) {
+async function linkUserToCustomer(_userId: string, data): Promise<DB.AxiosReturn> {
+
+    console.log("datalkqzhbbf === " + data)
+    if (data.typeId) {
         return await DB.Update({ userId: _userId, id: data.typeId }, DB.typeEnum.customer, "")
     } else {
         data.userId = _userId;
@@ -121,15 +125,24 @@ app.put('/user', async function (req, res) {
         }
     });
     if (skip) { return };
-    let sqlRes: SQL.SQLRes = await SQL.CreateUser(data.nickname, data.email, data.password, data.typeUser);
+    const sqlRes: SQL.SQLRes = await SQL.CreateUser(data.nickname, data.email, data.password, data.typeUser);
     if (sqlRes.errno) { res.json(sqlRes); return; }
-    var finalObject = sqlRes
-    alltypes.forEach(async type => {
-        var test = await linkUserToCustomer(sqlRes.data?.userId, data)
-        console.log("test ! " + test);
-        finalObject = Object.assign({}, finalObject, test)
+    var finalObject = sqlRes.data/*
+    alltypes.forEach( async type => {
+        
+    });*/
+    await Promise.all(alltypes.map(async (type) => {
+        var retDB: DB.AxiosReturn = await (LinkUser[type](sqlRes.data.userId, data));
+        console.log("retDB = " + JSON.stringify(retDB.data))
 
-    });
+
+        finalObject = Object.assign({}, finalObject, retDB.data)
+
+        if (retDB.error) {
+            return
+        }
+    }));
+    console.log("finalObject  = " + JSON.stringify(finalObject))
     res.json(finalObject);
 });
 app.post('/login', async (req, res) => {
