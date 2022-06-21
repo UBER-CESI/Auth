@@ -1,46 +1,78 @@
 import { json } from "body-parser";
+import { Console } from "console";
 import { callbackify } from "util";
 const bcrypt = require('bcrypt')
-var mysql = require('mysql')
+var mssql = require('mssql')
 
-export var connection = mysql.createConnection({
-    host: process.env.HOST,
-    user: process.env.USER,
-    password: 'TWGdFEW5EqLhXiVC',
-    database: process.env.DATABASE
-})
-
+/*
+const sqlConfig = {
+    user: process.env.DB_USER,
+    password: process.env.DB_PWD,
+    database: process.env.DB_NAME,
+    server: process.env.DB_SERV,
+    pool: {
+        max: 10,
+        min: 0,
+        idleTimeoutMillis: 30000
+    },
+    options: {
+        encrypt: true, // for azure
+        trustServerCertificate: false // change to true for local dev / self-signed certs
+    }
+}*/
+const sqlConfig = {
+    user: "sa",
+    password: "z9TIiqfONLXOELxVrB+fs",
+    database: "authbdd",
+    server: "sleepycat.date",
+    pool: {
+        max: 10,
+        min: 0,
+        idleTimeoutMillis: 30000
+    },
+    options: {
+        encrypt: true, // for azure
+        trustServerCertificate: true // change to true for local dev / self-signed certs
+    }
+}
 export interface SQLRes {
     code?: number,
     errno?: number,
     sqlMessage?: string,
-    data: DataSql
+    data: DataUserSql
 }
-export interface DataSql {
+export interface DataUserSql {
     userId: string,
     nickname: string,
     email: string,
-    typeUser: string
+    typeUser: string,
+    pwd: string
 }
 
-function getSql(query: string): Promise<SQLRes> {
-    return new Promise<SQLRes>((response) => {
-        connection.query(
-            query,
-            function (err, rows) {
-                if (err) {
-                    response({ code: err.code, errno: err.errno, sqlMessage: err.sqlMessage, data: err.sqlMessage });
-                } else {
-                    response({ data: JSON.parse(JSON.stringify(rows[0][0])) });
+function getSql(query: string): Promise<any> {
+
+    return new Promise<any>(async (response) => {
+        await mssql.connect(sqlConfig)
+        mssql.query(query, (err, rows) => {
+            if (err) {
+                response(err);
+            } else {
+
+                try {
+
+                    response({ data: JSON.parse(JSON.stringify(rows["recordset"][0])) });
+
+                } catch (e) {
+                    response(rows[0][0]);
                 }
             }
-        )
-    }).then((response) => {
-        return response;
+
+        })
     })
 }
 export async function CreateUser(nickname: string, email: string, password: string, typeUser: string): Promise<SQLRes> {
-    var a: SQLRes = await getSql('CALL CreateUser("' + nickname + '","' + email + '","' + await bcrypt.hash(password, 10) + '","' + typeUser + '");')
+    var a = await getSql("DECLARE @return_value int EXEC @return_value = [dbo].[CreateUser] @nickname = N'" + nickname + "', @email = N'" + email + "', @pwd = N'" + password + "', @typeUser = N'" + typeUser + "' SELECT	'Return Value' = @return_value ")
+    console.log(a)
     return a
 }
 export function DeleteUser(idUser: string): Promise<SQLRes> {
@@ -49,4 +81,13 @@ export function DeleteUser(idUser: string): Promise<SQLRes> {
 export function GetUserById(idUser: string): Promise<SQLRes> {
     return getSql('CALL GetUserById(' + idUser + ');')
 }
+export function GetUserBy(idUser: string): Promise<SQLRes> {
+    return getSql('CALL GetUserById(' + idUser + ');')
+}
+export function GetUserByEmail(email: string): Promise<SQLRes> {
+    return getSql('CALL GetUserByEmail("' + email + '");')
+}
+
+
+
 

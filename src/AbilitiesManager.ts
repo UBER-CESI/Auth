@@ -2,20 +2,22 @@
 import { AbilityBuilder, Ability, buildMongoQueryMatcher } from '@casl/ability';
 import { builtinModules } from 'module';
 import { isErrored } from 'stream';
+import { SQLRes } from './DBConnector/SQLConnector';
 import * as Models from './Models'
+import * as SQL from "./DBConnector/SQLConnector"
 
-export function GetRulesFor(user: Models.User) {
-    return (abilities[user.type](user));
+export function GetRulesFor(user) {
+    return (abilities[user.typeUser](user));
 }
 
 const abilities: { [K: string]: Function } = {
-    Customer: GetCustomerAbilities,
-    Deliverer: GetDelivererAbilities,
-    Restaurateur: GetRestaurateurAbilities,
-    Developper: GetDevelopperAbilities,
-    Commercial: GetComemrcialAbilities,
-    Technician: GetTechnicianAbilities,
-    Admin: GetAdminAbilities
+    customer: GetCustomerAbilities,
+    deliverer: GetDelivererAbilities,
+    restaurateur: GetRestaurateurAbilities,
+    developper: GetDevelopperAbilities,
+    commercial: GetComemrcialAbilities,
+    technician: GetTechnicianAbilities,
+    dmin: GetAdminAbilities
 }
 
 
