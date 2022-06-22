@@ -72,9 +72,7 @@ function getSql(query: string): Promise<any> {
 }
 export async function CreateUser(nickname: string, email: string, password: string, typeUser: string): Promise<SQLRes> {
     var passwordHashed = await bcrypt.hash(password, 10)
-    console.log("passwordHashed === " + passwordHashed)
     var a = await getSql("DECLARE @return_value int EXEC @return_value = [dbo].[CreateUser] @nickname = N'" + nickname + "', @email = N'" + email + "', @pwd = N'" + passwordHashed + "', @typeUser = N'" + typeUser + "' SELECT	'Return Value' = @return_value ")
-    console.log(a)
     a.data.pwd = " ";
     return a
 }

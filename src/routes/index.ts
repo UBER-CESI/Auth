@@ -7,11 +7,7 @@ import { AxiosReturn } from "../DBConnector/DBConnector";
 import { strictEqual } from "assert";
 import bodyParser from "body-parser";
 import bcrypt from 'bcrypt'
-
-import customers from "./customer"
-import restaurants from "./restaurant"
-import orders from "./order"
-import deliverers from "./deliverer"
+import { Router } from "express";
 
 import autoRouter from "./generic";
 const saltRounds = 10;
@@ -24,13 +20,18 @@ class account { // business entity
     }
 }
 
+function createRouter(capabilities: Array<string>, type: string) {
+    const router = Router()
+    capabilities.forEach(cap => {
+        autoRouter[cap](router, type)
+    })
+    return router
+}
 module.exports = function (app) {
-
-    app.use("/", customers)
-    app.use("/", restaurants)
-    app.use("/", orders)
-    app.use("/", deliverers)
-
+    app.use("/", createRouter(["CREATE", "SESSIONERROR", "GET", "UPDATE", "DELETE"], "customer"))
+    app.use("/", createRouter(["SESSIONERROR", "CREATE", "GET", "UPDATE", "DELETE"], "restaurant"))
+    app.use("/", createRouter(["SESSIONERROR", "CREATE", "GET", "UPDATE", "DELETE"], "deliverer"))
+    app.use("/", createRouter(["SESSIONERROR", "CREATE", "GET", "UPDATE", "DELETE", "PAY", "ACCEPT"], "order"))
     //routes menu (attendre la modification)
 
     //getMenu

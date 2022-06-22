@@ -13,9 +13,6 @@ function handleAxiosReturns(dbRes, res) {
     }
     res.status(dbRes.status).send(dbRes.data)
 }
-const router = Router()
-
-const type = "order"
 const autoRouter: {
     [key: string]: (router: Router, type: string) => void;
 } = {
