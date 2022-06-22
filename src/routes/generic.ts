@@ -130,10 +130,9 @@ const autoRouter: {
           .send("User " + req.session.username + " cannot do that!");
         return;
       }
-      let dbRes: AxiosReturn = await DB.Update(
+      let dbRes: AxiosReturn = await DB.SuspendCustomer(
         req.params.id,
-        DB.typeEnum[type],
-        "/suspend"
+        req.body.suspend
       );
       handleAxiosReturns(dbRes, res);
     });

@@ -32,7 +32,7 @@ module.exports = function (app) {
   app.use(
     "/",
     createRouter(
-      ["CREATE", "SESSIONERROR", "GET", "UPDATE", "DELETE"],
+      ["CREATE", "SESSIONERROR", "GET", "UPDATE", "DELETE", "SUSPEND"],
       "customer"
     )
   );

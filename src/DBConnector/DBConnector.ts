@@ -85,6 +85,12 @@ function AskBDD(config): Promise<AxiosReturn> {
       };
     })
     .catch((e) => {
+      if (e.response.status == 404) {
+        return {
+          error: false,
+          status: 404,
+        };
+      }
       return {
         error: true,
         data: e,
