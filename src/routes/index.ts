@@ -28,6 +28,7 @@ function createRouter(capabilities: Array<string>, type: string) {
     return router
 }
 module.exports = function (app) {
+   
     app.use("/", createRouter(["CREATE", "SESSIONERROR", "GET", "UPDATE", "DELETE"], "customer"))
     app.use("/", createRouter(["SESSIONERROR", "CREATE", "GET", "UPDATE", "DELETE"], "restaurant"))
     app.use("/", createRouter(["SESSIONERROR", "CREATE", "GET", "UPDATE", "DELETE"], "deliverer"))

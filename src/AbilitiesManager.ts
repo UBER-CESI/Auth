@@ -1,9 +1,10 @@
 
-import { AbilityBuilder, Ability, buildMongoQueryMatcher } from '@casl/ability';
+import { AbilityBuilder, Ability, buildMongoQueryMatcher, subject, MongoQuery } from '@casl/ability';
 import { builtinModules } from 'module';
 import { isErrored } from 'stream';
 import { SQLRes } from './DBConnector/SQLConnector';
 import * as Models from './Models'
+import { $nor } from 'sift'
 import * as SQL from "./DBConnector/SQLConnector"
 
 export function GetRulesFor(user) {
@@ -25,9 +26,10 @@ export const abilities: { [K: string]: Function } = {
 function GetCustomerAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
     can('read', 'account');
-    can('manage', 'account', { userId: user.id });
-    can('create', 'order');
-    can('delete', 'order', { customerId: user.id, status: undefined });
+    can('create', 'account', {typeUser: Models.UserType.Customer })
+    can('manage', 'account', { userId: user.userId });
+    can('create', 'order', {customerId : user._Id});
+    can('delete', 'order', { customerId: user.Id, status: undefined });
     can('pay', 'order', { customerId: user.id });
     can('read', 'orderHistory', { customerId: user.id });
     can('read', 'orderDeliveryStatus', { customerId: user.id });
@@ -84,6 +86,7 @@ function GetTechnicianAbilities(user) {
 }
 function GetAdminAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
+    
     can('manage', 'all');
 
     return rules;
@@ -92,6 +95,12 @@ function GetAdminAbilities(user) {
 
 function GetGuestAbilities() {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
-    can('create', 'customer')
+    can('manage', 'account', {typeUser: Models.UserType.Customer })
     return rules;
 }
+export const subjects: { [K: string]: Function } = {
+    account:subject.bind(null, 'account'),
+    order:subject.bind(null, 'order'),
+    menu:subject.bind(null,'menu')
+}
+

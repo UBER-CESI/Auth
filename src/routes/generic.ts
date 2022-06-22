@@ -4,7 +4,7 @@ import { Ability } from "@casl/ability";
 import { AxiosReturn } from "../DBConnector/DBConnector";
 import * as DB from "../DBConnector/DBConnector"
 import * as Models from "../Models";
-import { abilities } from '../AbilitiesManager'
+import * as AM from '../AbilitiesManager'
 
 function handleAxiosReturns(dbRes, res) {
     if (!dbRes.status) {
@@ -27,8 +27,8 @@ const autoRouter: {
     GET: (router, type) => {
         router.get([`/${type}`, `/${type}/:id`], async function (req, res) {
             const ab = new Ability(req.session.rules);
-            if (!ab.can('read', type)) {
-                res.status(401).send("User " + req.session.username + " cannot do that!")
+            if (!ab.can('read', 'account')) {
+                res.status(401).send("User " + req.session.nickname + " cannot do that!")
                 return
             }
             let dbRes: AxiosReturn = await DB.Get(req.params.id || "", DB.typeEnum[type], "");
@@ -38,8 +38,8 @@ const autoRouter: {
     CREATE: (router, type) => {
         router.put(`/${type}`, async function (req, res) {
             const ab = new Ability(req.session.rules);
-            if (!ab.can('create', type)) {
-                return res.status(401).send("User " + req.session.username + " cannot do that!")
+            if (!ab.can('create', AM.subjects[type](req.body))) {
+                return res.status(401).send("User " + req.session.nickname + " cannot do that!")
             }
             let dbRes: AxiosReturn = await DB.Create(req.body, DB.typeEnum[type], "");
             handleAxiosReturns(dbRes, res);
@@ -50,7 +50,7 @@ const autoRouter: {
             const ab = new Ability(req.session.rules);
             const body = { id: req.params.id, ...req.body }
             if (!ab.can('update', type)) {
-                res.status(401).send("User " + req.session.username + " cannot do that!")
+                res.status(401).send("User " + req.session.nickname + " cannot do that!")
                 return
             }
 
@@ -63,7 +63,7 @@ const autoRouter: {
         router.delete(`/${type}/:id`, async function (req, res) {
             const ab = new Ability(req.session.rules);
             if (!ab.can('delete', type)) {
-                res.status(401).send("User " + req.session.username + " cannot do that!")
+                res.status(401).send("User " + req.session.nickname + " cannot do that!")
                 return
             }
             let dbRes: AxiosReturn = await DB.Delete(req.params.id, DB.typeEnum[type], "");
@@ -74,7 +74,7 @@ const autoRouter: {
         router.post(`/${type}/:id/pay`, async function (req, res) {
             const ab = new Ability(req.session.rules);
             if (!ab.can('pay', type)) {
-                res.status(401).send("User " + req.session.username + " cannot do that!")
+                res.status(401).send("User " + req.session.nickname + " cannot do that!")
                 return
             }
 
@@ -87,7 +87,7 @@ const autoRouter: {
         router.post(`/${type}/:id/accept`, async function (req, res) {
             const ab = new Ability(req.session.rules);
             if (!ab.can('accept', type)) {
-                res.status(401).send("User " + req.session.username + " cannot do that!")
+                res.status(401).send("User " + req.session.nickname + " cannot do that!")
                 return
             }
             let dbRes: AxiosReturn = await DB.Update(req.params.id, DB.typeEnum.order, "/pay");

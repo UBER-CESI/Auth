@@ -1,6 +1,6 @@
 import { Server } from "http";
 import * as Models from "./Models";
-import * as Abilities from './AbilitiesManager'
+import * as AM from './AbilitiesManager'
 import { Ability, ExtractSubjectType, MongoQuery, Subject, SubjectRawRule } from "@casl/ability";
 import express from "express"
 import session from "express-session"
@@ -32,6 +32,7 @@ declare module "express-session" {
         email: string
         userId: string;
         type: Models.UserType;
+        _id:string
         rules: SubjectRawRule<string, ExtractSubjectType<Subject>, MongoQuery<AnyObject>>[]
     }
 }
@@ -80,7 +81,7 @@ app.use(express.static(__dirname + '/views'));
 
 app.use(`/`, (req, res, next) => {
     if (!req.session.rules) {
-        req.session.rules = Abilities.abilities["guest"]();
+        req.session.rules = AM.abilities["guest"]();
     }
     next()
 })
@@ -90,6 +91,12 @@ require('./routes')(app);
 
 //createUser
 app.put('/user', async function (req, res) {
+    const ab = new Ability(req.session.rules)   
+    if (!ab.can('create',AM.subjects["account"] (req.body))){
+        res.status(404).send("User cannot do that")
+        return 
+    }
+    
     let data = req.body;
     let alltypes = data.typeUser.split(",")
     let skip = false;
@@ -110,7 +117,7 @@ app.put('/user', async function (req, res) {
         console.log("type == " + type)
         if (type != "admin") {
             var retDB: DB.AxiosReturn = await LinkUser[type](sqlRes.data.userId, data);
-            console.log("DB === " + retDB.data)         
+            console.log("DB === " + retDB.data)        
            
             if (retDB.error) {
                 skip2 = true;
@@ -143,17 +150,21 @@ app.post('/login', async (req, res) => {
         res.status(404).send("Wrong ida");
         return
     }
-    InstanciateSession(user.data, req.session)
+  
 
     if (user.data.typeUser != "admin") {
         const mongoUser = await DB.Get("", <DB.typeEnum>user.data.typeUser, "?byUid=" + user.data.userId)
+        console.log("mongouser === ")
+        console.log(mongoUser.data)
         if (!mongoUser) {
             res.status(404).send("user not find in bdd");
             return
         }
-        res.json({ email: user.data.email, nickname: user.data.nickname, typeUser: user.data.typeUser, userId: user.data.userId, ...mongoUser.data?.data });
+        InstanciateSession({...user.data, ...mongoUser.data}, req.session)
+        res.json({ email: user.data.email, nickname: user.data.nickname, typeUser: user.data.typeUser, userId: user.data.userId, ...mongoUser.data });
         return
     }
+    InstanciateSession(user.data, req.session)
     res.json({ email: user.data.email, nickname: user.data.nickname, typeUser: user.data.typeUser, userId: user.data.userId });
 
 
@@ -204,13 +215,15 @@ app.post('/logout', (req, res) => {
 
 
 
-function InstanciateSession(user: SQL.DataUserSql, sess) {
+function InstanciateSession(user, sess) {
 
     sess.nickname = user.nickname;
     sess.email = user.email;
     sess.userId = user.userId;
     sess.type = user.typeUser;
-    sess.rules = Abilities.GetRulesFor(user);
+    sess.idType = user._id
+    sess.rules = AM.GetRulesFor(user);
+    console.log("id = " + sess._id)
     //return getUserFromSession(sess);
 
 

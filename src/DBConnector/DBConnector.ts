@@ -48,14 +48,18 @@ function getDataFromType(model, type: typeEnum): string | undefined {
 function AskBDD(config): Promise<AxiosReturn> {
 
     return axios(config).then((response) => {
-
+        //console.log("respondse === ")
+        //console.log(response.data[0])
         return {
+          
             error: false,
-            data: response.data,
+            data: response.data[0],
             status: (response.status === undefined) ? 200 : response.status
         }
     }).catch((e) => {
+        
         return {
+            
             error: true,
             data: e,
             status: 500
