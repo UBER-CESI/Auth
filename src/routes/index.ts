@@ -1,48 +1,48 @@
 import { request, Server } from "http";
-import * as DB from "../DBConnector/DBConnector"
+import * as DB from "../DBConnector/DBConnector";
 import * as Models from "../Models";
-import * as Abilities from '../AbilitiesManager'
+import * as Abilities from "../AbilitiesManager";
 import { Ability } from "@casl/ability";
 import { AxiosReturn } from "../DBConnector/DBConnector";
 import { strictEqual } from "assert";
 import bodyParser from "body-parser";
-import bcrypt from 'bcrypt'
+import bcrypt from "bcrypt";
 
-import customers from "./customer"
-import restaurants from "./restaurant"
-import orders from "./order"
-import deliverers from "./deliverer"
+import customers from "./customer";
+import restaurants from "./restaurant";
+import orders from "./order";
+import deliverers from "./deliverer";
 
 import autoRouter from "./generic";
 const saltRounds = 10;
 interface IdAbility {
-    idOwner: string
+  idOwner: string;
 }
-class account { // business entity
-    constructor(props) {
-        Object.assign(this, props);
-    }
+class account {
+  // business entity
+  constructor(props) {
+    Object.assign(this, props);
+  }
 }
 
 module.exports = function (app) {
+  app.use("/", customers);
+  app.use("/", restaurants);
+  app.use("/", orders);
+  app.use("/", deliverers);
 
-    app.use("/", customers)
-    app.use("/", restaurants)
-    app.use("/", orders)
-    app.use("/", deliverers)
+  //routes menu (attendre la modification)
 
-    //routes menu (attendre la modification)
+  //getMenu
+  //updateMenu
+  //deleteMenu
 
-    //getMenu
-    //updateMenu
-    //deleteMenu
+  //getDish
+  //updatedish
+  //deletedish
 
-    //getDish
-    //updatedish
-    //deletedish
-
-    //getMenuInfo
-    /*
+  //getMenuInfo
+  /*
     app.get('/restaurant/menu', async function (req, res) {
 
         if (!req.session.username) {
@@ -64,5 +64,4 @@ module.exports = function (app) {
         let dbRes: AxiosReturn = await DB.Get(menu.idRestaurant, DB.typeEnum.restaurants, menu.restaurantId + "/menu/" + );
         res.status(dbRes.status).send(dbRes.data)
     });*/
-
-}
+};
