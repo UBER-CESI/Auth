@@ -110,7 +110,7 @@ app.put('/user', async function (req, res) {
 });
 app.post('/login', async (req, res) => {
     const user: SQL.SQLRes = await SQL.GetUserByEmail(req.body.email);
-    if (!user) {
+    if (!user.data) {
         res.status(404).send("Wrong id");
         return
     }
@@ -118,6 +118,7 @@ app.post('/login', async (req, res) => {
         res.status(404).json(user)
         return
     }
+    console.log(user)
     if (!await bcrypt.compare(req.body.password, user.data.pwd)) {
         res.status(404).send("Wrong ida");
         return
