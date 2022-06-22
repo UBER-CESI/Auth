@@ -13,6 +13,7 @@ import { user } from "./PlaceHolders";
 import { Axios } from "axios";
 import { json } from "body-parser";
 import { AnyObject } from "@casl/ability/dist/types/types";
+import { ReadableStreamBYOBReader } from "stream/web";
 
 const server = app.listen(process.env.PORT || 3000, () => {
     console.log(`App Started on PORT ${process.env.PORT || 3000}`);
@@ -46,7 +47,7 @@ async function linkUserToCustomer(_userId: string, data): Promise<DB.AxiosReturn
         return await DB.Update({ userId: _userId, id: data.typeId }, DB.typeEnum.customer, "")
     } else {
         data.userId = _userId;
-        return await DB.Create(data, DB.typeEnum.customer, "");
+        return await DB.Create(data, DB.typeEnum.customer, "/");
 
 
     }
@@ -99,14 +100,26 @@ app.put('/user', async function (req, res) {
     const sqlRes: SQL.SQLRes = await SQL.CreateUser(data.nickname, data.email, data.password, data.typeUser);
     if (sqlRes.errno) { res.json(sqlRes); return; }
     var finalObject = sqlRes.data
+    var skip2 = false
+    var retDB
     await Promise.all(alltypes.map(async (type) => {
-        var retDB: DB.AxiosReturn = await (LinkUser[type](sqlRes.data.userId, data));
-        finalObject = Object.assign({}, finalObject, retDB.data)
-        if (retDB.error) {
-            return
+        console.log(data)
+        if (type != "admin") {
+            var retDB: DB.AxiosReturn = await LinkUser[type](sqlRes.data.userId, data);
+            Object.assign(finalObject, retDB.data);
+
+            if (retDB.error) {
+                skip2 = true;
+                return
+            }
         }
     }));
-    res.json(finalObject);
+    if (skip2) {
+        res.status(404).send()
+    }
+    console.log(JSON.stringify(finalObject))
+    res.json(JSON.parse(JSON.stringify(finalObject)))
+
 });
 app.post('/login', async (req, res) => {
     const user: SQL.SQLRes = await SQL.GetUserByEmail(req.body.email);

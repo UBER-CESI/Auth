@@ -13,7 +13,7 @@ export function GetRulesFor(user) {
 export const abilities: { [K: string]: Function } = {
     customer: GetCustomerAbilities,
     deliverer: GetDelivererAbilities,
-    restaurateur: GetRestaurateurAbilities,
+    restaurant: GetRestaurateurAbilities,
     developper: GetDevelopperAbilities,
     commercial: GetComemrcialAbilities,
     technician: GetTechnicianAbilities,
@@ -24,9 +24,8 @@ export const abilities: { [K: string]: Function } = {
 
 function GetCustomerAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
-    can('do', 'hoola-hoop');
     can('read', 'account');
-    can('manage', 'account', { uid: user.id });
+    can('manage', 'account', { userId: user.id });
     can('create', 'order');
     can('delete', 'order', { customerId: user.id, status: undefined });
     can('pay', 'order', { customerId: user.id });
@@ -60,6 +59,7 @@ function GetDelivererAbilities(user) {
     can('create', 'sponsorLink', { idOwner: user.id, type: user.type });
     return rules;
 }
+
 function GetDevelopperAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
     can('manage', 'account', { idOwner: user.id });
