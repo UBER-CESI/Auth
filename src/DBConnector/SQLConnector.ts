@@ -63,7 +63,7 @@ function getSql(query: string): Promise<any> {
                     response({ data: JSON.parse(JSON.stringify(rows["recordset"][0])) });
 
                 } catch (e) {
-                    response(rows[0][0]);
+                    response(rows);
                 }
             }
 
@@ -71,8 +71,11 @@ function getSql(query: string): Promise<any> {
     })
 }
 export async function CreateUser(nickname: string, email: string, password: string, typeUser: string): Promise<SQLRes> {
-    var a = await getSql("DECLARE @return_value int EXEC @return_value = [dbo].[CreateUser] @nickname = N'" + nickname + "', @email = N'" + email + "', @pwd = N'" + password + "', @typeUser = N'" + typeUser + "' SELECT	'Return Value' = @return_value ")
+    var passwordHashed = await bcrypt.hash(password, 10)
+    console.log("passwordHashed === " + passwordHashed)
+    var a = await getSql("DECLARE @return_value int EXEC @return_value = [dbo].[CreateUser] @nickname = N'" + nickname + "', @email = N'" + email + "', @pwd = N'" + passwordHashed + "', @typeUser = N'" + typeUser + "' SELECT	'Return Value' = @return_value ")
     console.log(a)
+    a.data.pwd = " ";
     return a
 }
 export function DeleteUser(idUser: string): Promise<SQLRes> {
@@ -85,7 +88,7 @@ export function GetUserBy(idUser: string): Promise<SQLRes> {
     return getSql('CALL GetUserById(' + idUser + ');')
 }
 export function GetUserByEmail(email: string): Promise<SQLRes> {
-    return getSql('CALL GetUserByEmail("' + email + '");')
+    return getSql("DECLARE	@return_value int EXEC	@return_value = [dbo].[GetUserByEmail] @email = N'" + email + "'SELECT	'Return Value' = @return_value")
 }
 
 

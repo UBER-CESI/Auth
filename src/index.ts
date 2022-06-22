@@ -1,27 +1,22 @@
 import { Server } from "http";
 import * as Models from "./Models";
 import * as Abilities from './AbilitiesManager'
-import { Ability } from "@casl/ability";
-const express = require('express');
-const session = require('express-session');
-const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt')
+import { Ability, ExtractSubjectType, MongoQuery, Subject, SubjectRawRule } from "@casl/ability";
+import express from "express"
+import session from "express-session"
+import bodyParser from "body-parser";
+import bcrypt from "bcrypt"
 const app = express();
 import * as SQL from "./DBConnector/SQLConnector"
 import * as DB from "./DBConnector/DBConnector"
 import { user } from "./PlaceHolders";
 import { Axios } from "axios";
 import { json } from "body-parser";
-
-
+import { AnyObject } from "@casl/ability/dist/types/types";
 
 const server = app.listen(process.env.PORT || 3000, () => {
     console.log(`App Started on PORT ${process.env.PORT || 3000}`);
 });
-
-
-
-
 
 app.use(session({
     secret: 'X5ix1MylhUTBWRU',
@@ -29,26 +24,28 @@ app.use(session({
     resave: true,
     cookie: { maxAge: 1000000 }, // in miliseconds
 }));
-
+declare module "express-session" {
+    interface SessionData {
+        username: string,
+        nickname: string,
+        email: string
+        userId: string;
+        type: Models.UserType;
+        rules: SubjectRawRule<string, ExtractSubjectType<Subject>, MongoQuery<AnyObject>>[]
+    }
+}
 const LinkUser: { [K: string]: Function } = {
     customer: linkUserToCustomer,
     restaurant: linkUserToRestaurant,
     deliverer: linkUserToDeliverer,
-    admin: linkUserToAdmin,
+    admin: () => { },
 }
-async function linkUserToAdmin(_userId?: string, data?): Promise<DB.AxiosReturn> {
-    console.log("admin")
-    return {}
 
-}
 async function linkUserToCustomer(_userId: string, data): Promise<DB.AxiosReturn> {
-
-    console.log("datalkqzhbbf === " + data)
     if (data.typeId) {
         return await DB.Update({ userId: _userId, id: data.typeId }, DB.typeEnum.customer, "")
     } else {
         data.userId = _userId;
-        console.log("data : " + _userId)
         return await DB.Create(data, DB.typeEnum.customer, "");
 
 
@@ -75,6 +72,13 @@ async function linkUserToDeliverer(_userId?: string, data?): Promise<DB.AxiosRet
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/views'));
+
+app.use(`/`, (req, res, next) => {
+    if (!req.session.rules) {
+        req.session.rules = Abilities.abilities["guest"]();
+    }
+    next()
+})
 
 require('./routes')(app);
 
@@ -107,63 +111,39 @@ app.put('/user', async function (req, res) {
 app.post('/login', async (req, res) => {
     const user: SQL.SQLRes = await SQL.GetUserByEmail(req.body.email);
     if (!user) {
-        res.status(404).send("Wrong ida");
+        res.status(404).send("Wrong id");
         return
     }
     if (user.errno) {
         res.status(404).json(user)
         return
     }
-    console.log(user.data.pwd)
     if (!await bcrypt.compare(req.body.password, user.data.pwd)) {
-        res.status(404).send("Wrong idg");
+        res.status(404).send("Wrong ida");
         return
     }
-    //const userFromMongo;
-    res.json("loged-in");
-});
+    InstanciateSession(user.data, req.session)
 
-
-
-
-
-
-
-/*
-
-
-
-    if (FinalUser.email === req.body.email && FinalUser.password === req.body.password) {
-        res.json(InstanciateSession(FinalUser, req.session));
-        console.log(Date.now().toString() + " | " + FinalUser.id);
-
-    } else {
-        if (DelivererUser.email === req.body.email && DelivererUser.password === req.body.password) {
-            var ret: Models.UserWoPasswd = InstanciateSession(DelivererUser, req.session)
-            res.json(ret);
-
-
-        } else {
-            if (AdminUser.email === req.body.email && AdminUser.password === req.body.password) {
-                var ret: Models.UserWoPasswd = InstanciateSession(AdminUser, req.session)
-                res.json(ret);
-
-            } else {
-                res.status(404).send('wrong id');
-
-            }
-
+    if (user.data.typeUser != "admin") {
+        const mongoUser = await DB.Get("", <DB.typeEnum>user.data.typeUser, "?byUid=" + user.data.userId)
+        if (!mongoUser) {
+            res.status(404).send("user not find in bdd");
+            return
         }
+        res.json({ email: user.data.email, nickname: user.data.nickname, typeUser: user.data.typeUser, userId: user.data.userId, ...mongoUser.data?.data });
+        return
     }
+    res.json({ email: user.data.email, nickname: user.data.nickname, typeUser: user.data.typeUser, userId: user.data.userId });
+
+
 
 });
 
 
-*/
 
 app.get('/login/canDoHoolaHoop', (req, res) => {
     var sess = req.session;
-    if (sess.username) {
+    if (sess.nickname) {
         const ability = new Ability(sess.rules);
         res.send(ability.can('do', 'hoola-hoop'));
     } else {
@@ -172,7 +152,7 @@ app.get('/login/canDoHoolaHoop', (req, res) => {
 })
 app.get('/login/canDoBetterHoolaHoop', (req, res) => {
     var sess = req.session;
-    if (sess.username) {
+    if (sess.nickname) {
         const ability = new Ability(sess.rules);
         res.send(ability.can('do', 'better hoola-hoop'));
     } else {

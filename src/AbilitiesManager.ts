@@ -10,14 +10,15 @@ export function GetRulesFor(user) {
     return (abilities[user.typeUser](user));
 }
 
-const abilities: { [K: string]: Function } = {
+export const abilities: { [K: string]: Function } = {
     customer: GetCustomerAbilities,
     deliverer: GetDelivererAbilities,
     restaurateur: GetRestaurateurAbilities,
     developper: GetDevelopperAbilities,
     commercial: GetComemrcialAbilities,
     technician: GetTechnicianAbilities,
-    dmin: GetAdminAbilities
+    admin: GetAdminAbilities,
+    guest: GetGuestAbilities
 }
 
 
@@ -25,10 +26,12 @@ function GetCustomerAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
     can('do', 'hoola-hoop');
     can('read', 'account');
-    can('manage', 'account', { idOwner: user.id });
-    can('manage', 'order', { idOwner: user.id });
-    can('read', 'orderHistory', { idOwner: user.id });
-    can('read', 'orderDeliveryStatus', { idOwner: user.id });
+    can('manage', 'account', { uid: user.id });
+    can('create', 'order');
+    can('delete', 'order', { customerId: user.id, status: undefined });
+    can('pay', 'order', { customerId: user.id });
+    can('read', 'orderHistory', { customerId: user.id });
+    can('read', 'orderDeliveryStatus', { customerId: user.id });
     can('create', 'sponsorLink', { idOwner: user.id, type: user.type });
     return rules;
 
@@ -38,13 +41,13 @@ function GetRestaurateurAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
     can('manage', 'account', { idOwner: user.id });
     can('manage', 'restaurant', { userId: user.id });
-    can('manage', 'articles', { idRestaurant: user.idRestaurant });
+    can('manage', 'articles', { restaurantId: user.idRestaurant });
     can('manage', 'menu', { restaurantId: user.idRestaurant });
-    can('read', 'order', { idRestaurant: user.idRestaurant });
-    can('accept', 'order', { OrderStatus: Models.OrderStatus.Payed, idRestaurant: user.idRestaurant });
-    can('read', 'orderDeliveryStatus', { idRestaurant: user.idRestaurant });
-    can('read', 'orderHistory', { idRestaurant: user.idRestaurant });
-    can('read', 'restaurantStatistics', { idRestaurant: user.idRestaurant });
+    can('read', 'order', { restaurantId: user.idRestaurant });
+    can('accept', 'order', { OrderStatus: Models.OrderStatus.Payed, restaurantId: user.idRestaurant });
+    can('read', 'orderDeliveryStatus', { restaurantId: user.idRestaurant });
+    can('read', 'orderHistory', { restaurantId: user.idRestaurant });
+    can('read', 'restaurantStatistics', { restaurantId: user.idRestaurant });
     can('create', 'sponsorLink', { idOwner: user.id, type: user.type });
     return rules;
 }
@@ -87,4 +90,8 @@ function GetAdminAbilities(user) {
 }
 
 
-
+function GetGuestAbilities() {
+    const { can, cannot, rules } = new AbilityBuilder(Ability);
+    can('create', 'customer')
+    return rules;
+}

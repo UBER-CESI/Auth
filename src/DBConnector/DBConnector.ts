@@ -27,32 +27,20 @@ export interface AxiosReturn {
     data?: AxiosResponse<any, any>,
     error?: boolean,
     status?: number
-
 }
+
+const formatter =
+{
+    customer: (model) => JSON.stringify(model, ['email', 'nickname', 'firstname', 'lastname', 'phoneNumber']),
+    restaurant: (model) => JSON.stringify(model, ['name', 'address', 'phoneNumber', 'email']),
+    deliverer: (model) => JSON.stringify(model, ['name']),
+    order: (model) => JSON.stringify(model, ['customerId', 'delivererId', 'restaurantId', 'totalPrice', 'tipAmount', 'status', 'items', 'date', 'num']),
+    menu: (model) => JSON.stringify(model, ['name', 'description', 'items', 'price', 'restaurantId']),
+    item: (model) => JSON.stringify(model, ['email', 'nickname', 'firstname', 'lastname', 'phoneNumber']),
+}
+
 function getDataFromType(model, type: typeEnum): string | undefined {
-
-    switch (type) {
-
-        case typeEnum.customer:
-            return JSON.stringify(model, ['email', 'nickname', 'firstname', 'lastname', 'phoneNumber'])
-            break;
-        case typeEnum.deliverer:
-
-            return JSON.stringify(model, ['name'])
-            break;
-        case typeEnum.order:
-            return JSON.stringify(model, ['customerId', 'delivererId', 'restaurantId', 'totalPrice', 'tipAmount', 'status', 'items', 'date', 'num'])
-            break;
-        case typeEnum.restaurant:
-            return JSON.stringify(model, ['name', 'address', 'phoneNumber', 'email'])
-            break;
-        case typeEnum.menu:
-            return JSON.stringify(model, ['name', 'description', 'items', 'price', 'restaurantId'])
-            break;
-        default:
-            return "";
-            break;
-    }
+    return formatter[type](model) || ""
 }
 
 
@@ -77,7 +65,6 @@ function AskBDD(config): Promise<AxiosReturn> {
 
 var addressInUse = 0;
 export function getLoadBalancingAddress(type: typeEnum): string {
-    console.log(type)
     addressInUse++;
     const addresses = serverType[type]
     if (addresses) {
@@ -102,6 +89,7 @@ export function Get(id: string, type: typeEnum, restUrl: string): Promise<AxiosR
     };
     return AskBDD(config);
 }
+
 export function Delete(id: string, type: typeEnum, restUrl: string): Promise<AxiosReturn> {
     const config = {
         method: "DELETE",
@@ -112,7 +100,6 @@ export function Delete(id: string, type: typeEnum, restUrl: string): Promise<Axi
 }
 export function Create(model, type: typeEnum, restUrl: string) {
     var dataUp = JSON.stringify(model)
-    console.log(dataUp);
     const config = {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
