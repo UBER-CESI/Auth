@@ -43,11 +43,15 @@ const LinkUser: { [K: string]: Function } = {
 }
 
 async function linkUserToCustomer(_userId: string, data): Promise<DB.AxiosReturn> {
+    
     if (data.typeId) {
+     
         return await DB.Update({ userId: _userId, id: data.typeId }, DB.typeEnum.customer, "")
     } else {
-        data.userId = _userId;
-        return await DB.Create(data, DB.typeEnum.customer, "/");
+       
+        data.userId = _userId.toString();
+        console.log (data)
+        return await DB.Create(data, DB.typeEnum.customer, "");
 
 
     }
@@ -103,22 +107,25 @@ app.put('/user', async function (req, res) {
     var skip2 = false
     var retDB
     await Promise.all(alltypes.map(async (type) => {
-        console.log(data)
+        console.log("type == " + type)
         if (type != "admin") {
             var retDB: DB.AxiosReturn = await LinkUser[type](sqlRes.data.userId, data);
-            Object.assign(finalObject, retDB.data);
-
+            console.log("DB === " + retDB.data)         
+           
             if (retDB.error) {
                 skip2 = true;
                 return
+            }else{
+                finalObject = Object.assign(finalObject, retDB.data);
             }
         }
     }));
     if (skip2) {
         res.status(404).send()
+        return
     }
-    console.log(JSON.stringify(finalObject))
-    res.json(JSON.parse(JSON.stringify(finalObject)))
+
+    res.json(finalObject)
 
 });
 app.post('/login', async (req, res) => {

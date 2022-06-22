@@ -1,5 +1,6 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { json } from "body-parser";
+import { Console } from "console";
 import { response } from "express";
 import { request } from "http";
 import * as Models from "../Models";
@@ -99,6 +100,8 @@ export function Delete(id: string, type: typeEnum, restUrl: string): Promise<Axi
     return AskBDD(config);
 }
 export function Create(model, type: typeEnum, restUrl: string) {
+   
+    
     var dataUp = JSON.stringify(model)
     const config = {
         method: "PUT",
@@ -106,6 +109,7 @@ export function Create(model, type: typeEnum, restUrl: string) {
         url: getLoadBalancingAddress(type) + "/" + restUrl,
         data: dataUp
     }
+    
     return AskBDD(config);
 }
 export function Update(model, type: typeEnum, restUrl: string) {
