@@ -51,7 +51,7 @@ const LinkUser: { [K: string]: Function } = {
 
 async function linkUserToCustomer(
   _userId: string,
-  data
+  data: any
 ): Promise<DB.AxiosReturn> {
   if (data.typeId) {
     return await DB.Update(
@@ -66,7 +66,7 @@ async function linkUserToCustomer(
 }
 async function linkUserToRestaurant(
   _userId?: string,
-  data?
+  data?: any
 ): Promise<DB.AxiosReturn> {
   if (data.TypeId) {
     return await DB.Update(
@@ -81,7 +81,7 @@ async function linkUserToRestaurant(
 }
 async function linkUserToDeliverer(
   _userId?: string,
-  data?
+  data?: any
 ): Promise<DB.AxiosReturn> {
   if (data.TypeId) {
     return await DB.Update(
@@ -112,7 +112,7 @@ app.put("/user", async function (req, res) {
   let data = req.body;
   let alltypes = data.typeUser.split(",");
   let skip = false;
-  alltypes.forEach((type) => {
+  alltypes.forEach((type: any) => {
     if (!Object.values(Models.UserType).includes(type.toLowerCase())) {
       res.status(404).send("This type of account does not exists : " + type);
       skip = true;
@@ -136,7 +136,7 @@ app.put("/user", async function (req, res) {
   var skip2 = false;
 
   await Promise.all(
-    alltypes.map(async (type) => {
+    alltypes.map(async (type: any) => {
       console.log(data);
       if (type != "admin") {
         var retDB: DB.AxiosReturn = await LinkUser[type](
@@ -239,7 +239,7 @@ app.post("/logout", (req, res) => {
   });
 });
 
-function InstanciateSession(user: SQL.DataUserSql, sess) {
+function InstanciateSession(user: SQL.DataUserSql, sess: any) {
   sess.nickname = user.nickname;
   sess.email = user.email;
   sess.userId = user.userId;
