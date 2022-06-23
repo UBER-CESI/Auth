@@ -33,7 +33,7 @@ jobs:
       REGISTRY: ghcr.io
       # github.repository as <account>/<repo>
       IMAGE_NAME: ${{ github.repository }}
-    services:
+    #services:
     
       #customers:
       #  image: ghcr.io/uber-cesi/api:customers
