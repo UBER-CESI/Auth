@@ -15,7 +15,7 @@ import { json } from "body-parser";
 import { AnyObject } from "@casl/ability/dist/types/types";
 import { ReadableStreamBYOBReader } from "stream/web";
 
-const server = app.listen(process.env.PORT || 3000, () => {
+const server = app.listen(process.env.PORT || 3000,  () => {
     console.log(`App Started on PORT ${process.env.PORT || 3000}`);
 });
 
@@ -149,12 +149,13 @@ app.post('/login', async (req, res) => {
 
     if (user.data.typeUser != "admin") {
         const mongoUser = await DB.Get("", <DB.typeEnum>user.data.typeUser, "?byUid=" + user.data.userId)
-        if (!mongoUser) {
+        if (!mongoUser.data) {
             res.status(404).send("user not find in bdd");
             return
         }
-        InstanciateSession({...user.data, ...mongoUser.data}, req.session)
-        res.json({ email: user.data.email, nickname: user.data.nickname, typeUser: user.data.typeUser, userId: user.data.userId, ...mongoUser.data });
+      
+        InstanciateSession({...user.data, ...mongoUser.data[0]}, req.session)
+        res.json({ email: user.data.email, nickname: user.data.nickname, typeUser: user.data.typeUser, userId: user.data.userId, ...mongoUser.data[0]});
         return
     }
     InstanciateSession(user.data, req.session)
@@ -214,7 +215,7 @@ function InstanciateSession(user, sess) {
     sess.email = user.email;
     sess.userId = user.userId;
     sess.type = user.typeUser;
-    sess.idType = user._id
+    sess._id = user._id
     sess.rules = AM.GetRulesFor(user);
 
 

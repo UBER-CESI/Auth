@@ -20,17 +20,18 @@ class account { // business entity
     }
 }
 
-function createRouter(capabilities: Array<string>, type: string, rest? :string) {
+function createRouter(capabilities: Array<string>, type: string, rest? :string) {   
     const router = Router()
     capabilities.forEach(cap => {
         autoRouter[cap](router, type, rest)
+        rest = undefined
     })
     return router
 }
 module.exports = function (app) {
    
-    app.use("/", createRouter(["CREATE", "SESSIONERROR", "GET", "UPDATE", "DELETE"], "customer"))
-    app.use("/", createRouter(["CREATE", "SESSIONERROR", "GET", "UPDATE", "DELETE"], "customer", "suspend"))
+    app.use("/", createRouter(["CREATE", "SESSIONERROR", "GET", "UPDATE", "DELETE", "SUSPEND"], "customer"))
+    app.use("/", createRouter(["CREATE", "SESSIONERROR", "GET", "UPDATE", "DELETE"], "customer", "history"))
     app.use("/", createRouter(["SESSIONERROR", "CREATE", "GET", "UPDATE", "DELETE"], "restaurant"))
     app.use("/", createRouter(["SESSIONERROR", "CREATE", "GET", "UPDATE", "DELETE"], "restaurant", "item"))
     app.use("/", createRouter(["SESSIONERROR", "CREATE", "GET", "UPDATE", "DELETE"], "restaurant", "menu"))

@@ -84,20 +84,20 @@ export function getLoadBalancingAddress(type: typeEnum): string {
 }
 
 
-export function Get(id: string, type: typeEnum, restUrl: string): Promise<AxiosReturn> {
+export function Get(id: string, type: typeEnum, restUrl: string) {
     const config = {
         method: "GET",
         headers: { "Content-Type": "application/json" },
-        url: getLoadBalancingAddress(type) + "/" + id + restUrl,
+        url: getLoadBalancingAddress(type) + id + restUrl,
     };
     return AskBDD(config);
 }
 
-export function Delete(id: string, type: typeEnum, restUrl: string): Promise<AxiosReturn> {
+export function Delete(id: string, type: typeEnum, restUrl: string){
     const config = {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        url: getLoadBalancingAddress(type) + "/" + id + restUrl,
+        url: getLoadBalancingAddress(type) +  id + restUrl,
     };
     return AskBDD(config);
 }

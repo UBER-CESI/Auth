@@ -28,9 +28,9 @@ function GetCustomerAbilities(user) {
     can('read', 'account');
     can('create', 'account', {typeUser: Models.UserType.Customer })
     can('manage', 'account', { userId: user.userId });
-    can('create', 'order', {customerId : user._id});
-    can('delete', 'order', { customerId: user._id, status: undefined });
-    can('pay', 'order', { customerId: user._id });
+    can('create', 'order', {customerId : user._id , status:null}).because("customers can only create a command for themselves without a status ('status'=null)" );
+    can('delete', 'order', { customerId: user._id, status:null }).because("customers can only delete theirs own commands if status = null");
+    can('pay', 'order', { customerId: user._id,status: undefined });
     can('read', 'order', { customerId: user._id });
     return rules;
 
@@ -93,6 +93,7 @@ function GetGuestAbilities() {
 }
 export const subjects: { [K: string]: Function } = {
     account:subject.bind(null, 'account'),
+    customer:subject.bind(null, 'customer'),
     order:subject.bind(null, 'order'),
     menu:subject.bind(null,'menu'),
     article:subject.bind(null, 'article'),
