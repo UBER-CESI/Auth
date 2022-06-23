@@ -35,45 +35,46 @@ jobs:
       IMAGE_NAME: ${{ github.repository }}
     services:
     
-      customers:
-        image: ghcr.io/uber-cesi/api:customers
-        env: 
-          DB_HOST: ${{ secrets.MONGO_DB_HOST }}
-          DB_USER: ${{ secrets.MONGO_DB_USER }}
-          DB_PASS: ${{ secrets.MONGO_DB_PASS }}
-          LISTEN_ADDRESS: ${{ secrets.LISTEN_ADDRESS }}
-          LISTEN_PORT: ${{ secrets.LISTEN_PORT }}
-          CPU_NUMBER:  ${{ secrets.CPU_NUMBER }}
+      #customers:
+      #  image: ghcr.io/uber-cesi/api:customers
+      #  env: 
+      #    DB_HOST: ${{ secrets.MONGO_DB_HOST }}
+      #    DB_USER: ${{ secrets.MONGO_DB_USER }}
+      #    DB_PASS: ${{ secrets.MONGO_DB_PASS }}
+      #    LISTEN_ADDRESS: ${{ secrets.LISTEN_ADDRESS }}
+      #    LISTEN_PORT: ${{ secrets.LISTEN_PORT }}
+      #    CPU_NUMBER:  ${{ secrets.CPU_NUMBER }}
           
-      deliverers:
-        image: ghcr.io/uber-cesi/api:deliverers
-        env: 
-          DB_HOST: ${{ secrets.MONGO_DB_HOST }}
-          DB_USER: ${{ secrets.MONGO_DB_USER }}
-          DB_PASS: ${{ secrets.MONGO_DB_PASS }}
-          LISTEN_ADDRESS: ${{ secrets.LISTEN_ADDRESS }}
-          LISTEN_PORT: ${{ secrets.LISTEN_PORT }}
-          CPU_NUMBER:  ${{ secrets.CPU_NUMBER }}
+      #deliverers:
+      #  image: ghcr.io/uber-cesi/api:deliverers
+      #  env: 
+      #    DB_HOST: ${{ secrets.MONGO_DB_HOST }}
+      #    DB_USER: ${{ secrets.MONGO_DB_USER }}
+      #    DB_PASS: ${{ secrets.MONGO_DB_PASS }}
+      #   LISTEN_ADDRESS: ${{ secrets.LISTEN_ADDRESS }}
+      #    LISTEN_PORT: ${{ secrets.LISTEN_PORT }}
+      #    CPU_NUMBER:  ${{ secrets.CPU_NUMBER }}
           
-      orders:
-        image: ghcr.io/uber-cesi/api:orders
-        env: 
-          DB_HOST: ${{ secrets.MONGO_DB_HOST }}
-          DB_USER: ${{ secrets.MONGO_DB_USER }}
-          DB_PASS: ${{ secrets.MONGO_DB_PASS }}
-          LISTEN_ADDRESS: ${{ secrets.LISTEN_ADDRESS }}
-          LISTEN_PORT: ${{ secrets.LISTEN_PORT }}
-          CPU_NUMBER:  ${{ secrets.CPU_NUMBER }}
-          
-      restaurants:
-        image: ghcr.io/uber-cesi/api:restaurants
-        env: 
-          DB_HOST: ${{ secrets.MONGO_DB_HOST }}
-          DB_USER: ${{ secrets.MONGO_DB_USER }}
-          DB_PASS: ${{ secrets.MONGO_DB_PASS }}
-          LISTEN_ADDRESS: ${{ secrets.LISTEN_ADDRESS }}
-          LISTEN_PORT: ${{ secrets.LISTEN_PORT }}
-          CPU_NUMBER:  ${{ secrets.CPU_NUMBER }}
+      #orders:
+      #  image: ghcr.io/uber-cesi/api:orders
+      #  env: 
+      #    DB_HOST: ${{ secrets.MONGO_DB_HOST }}
+      #    DB_USER: ${{ secrets.MONGO_DB_USER }}
+      #
+      #DB_PASS: ${{ secrets.MONGO_DB_PASS }}
+      #    LISTEN_ADDRESS: ${{ secrets.LISTEN_ADDRESS }}
+      #    LISTEN_PORT: ${{ secrets.LISTEN_PORT }}
+      #    CPU_NUMBER:  ${{ secrets.CPU_NUMBER }}
+      #    
+      #restaurants:
+      #  image: ghcr.io/uber-cesi/api:restaurants
+      #  env: 
+      #    DB_HOST: ${{ secrets.MONGO_DB_HOST }}
+      #    DB_USER: ${{ secrets.MONGO_DB_USER }}
+      #    DB_PASS: ${{ secrets.MONGO_DB_PASS }}
+      #    LISTEN_ADDRESS: ${{ secrets.LISTEN_ADDRESS }}
+      #    LISTEN_PORT: ${{ secrets.LISTEN_PORT }}
+      #    CPU_NUMBER:  ${{ secrets.CPU_NUMBER }}
           
     steps:
       - uses: actions/checkout@v3
@@ -83,8 +84,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
       - run: npm ci
-      - name: Test code
-        run: npm test
+      #- name: Test code
+      #  run: npm test
       - name: Build javascript
         run: npm run build --if-present
       # - name: Build the Docker image
