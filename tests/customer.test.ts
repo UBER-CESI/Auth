@@ -21,7 +21,7 @@ describe("Test Customer routes", () => {
     phoneNumber: "0666666666",
   };
   const admin = {
-    email: "a@a",
+    email: "a@a.com",
     password: "password",
   };
   var connect_sid: string;
