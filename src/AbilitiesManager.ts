@@ -28,37 +28,30 @@ function GetCustomerAbilities(user) {
     can('read', 'account');
     can('create', 'account', {typeUser: Models.UserType.Customer })
     can('manage', 'account', { userId: user.userId });
-    can('create', 'order', {customerId : user._Id});
-    can('delete', 'order', { customerId: user.Id, status: undefined });
-    can('pay', 'order', { customerId: user.id });
-    can('read', 'orderHistory', { customerId: user.id });
-    can('read', 'orderDeliveryStatus', { customerId: user.id });
-    can('create', 'sponsorLink', { idOwner: user.id, type: user.type });
+    can('create', 'order', {customerId : user._id});
+    can('delete', 'order', { customerId: user._id, status: undefined });
+    can('pay', 'order', { customerId: user._id });
+    can('read', 'order', { customerId: user._id });
     return rules;
 
 }
 
 function GetRestaurateurAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
-    can('manage', 'account', { idOwner: user.id });
-    can('manage', 'restaurant', { userId: user.id });
-    can('manage', 'articles', { restaurantId: user.idRestaurant });
-    can('manage', 'menu', { restaurantId: user.idRestaurant });
-    can('read', 'order', { restaurantId: user.idRestaurant });
-    can('accept', 'order', { OrderStatus: Models.OrderStatus.Payed, restaurantId: user.idRestaurant });
-    can('read', 'orderDeliveryStatus', { restaurantId: user.idRestaurant });
-    can('read', 'orderHistory', { restaurantId: user.idRestaurant });
-    can('read', 'restaurantStatistics', { restaurantId: user.idRestaurant });
-    can('create', 'sponsorLink', { idOwner: user.id, type: user.type });
+    can('manage', 'account', { userId: user.userId });
+    can('manage', 'restaurant', { userId: user._id });
+    can('manage', 'article', { restaurantId: user._id });
+    can('manage', 'menu', { restaurantId: user._id });
+    can('read', 'order', { restaurantId: user._id });
+    can('accept', 'order', { OrderStatus: Models.OrderStatus.Payed, restaurantId: user._id });
     return rules;
 }
 function GetDelivererAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
     can('do', 'better hoola-hoop');
-    can('manage', 'account', { idOwner: user.id });
-    can('accept', 'orders', { OrderStatus: Models.OrderStatus.Done });
-    can('deliver', 'order', { OrderStatus: Models.OrderStatus.InDelivery, idDeliverer: user.id });
-    can('create', 'sponsorLink', { idOwner: user.id, type: user.type });
+    can('manage', 'account', { userId: user.userId });
+    can('accept', 'order', { OrderStatus: Models.OrderStatus.Done });
+    can('deliver', 'order', { OrderStatus: Models.OrderStatus.InDelivery, idDeliverer: user.userId });
     return rules;
 }
 
@@ -101,6 +94,8 @@ function GetGuestAbilities() {
 export const subjects: { [K: string]: Function } = {
     account:subject.bind(null, 'account'),
     order:subject.bind(null, 'order'),
-    menu:subject.bind(null,'menu')
+    menu:subject.bind(null,'menu'),
+    article:subject.bind(null, 'article'),
+    restaurant:subject.bind(null, 'restaurant')
 }
 

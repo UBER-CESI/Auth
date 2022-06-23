@@ -51,7 +51,6 @@ async function linkUserToCustomer(_userId: string, data): Promise<DB.AxiosReturn
     } else {
        
         data.userId = _userId.toString();
-        console.log (data)
         return await DB.Create(data, DB.typeEnum.customer, "");
 
 
@@ -114,11 +113,8 @@ app.put('/user', async function (req, res) {
     var skip2 = false
     var retDB
     await Promise.all(alltypes.map(async (type) => {
-        console.log("type == " + type)
         if (type != "admin") {
-            var retDB: DB.AxiosReturn = await LinkUser[type](sqlRes.data.userId, data);
-            console.log("DB === " + retDB.data)        
-           
+            var retDB: DB.AxiosReturn = await LinkUser[type](sqlRes.data.userId, data);          
             if (retDB.error) {
                 skip2 = true;
                 return
@@ -145,7 +141,6 @@ app.post('/login', async (req, res) => {
         res.status(404).json(user)
         return
     }
-    console.log(user)
     if (!await bcrypt.compare(req.body.password, user.data.pwd)) {
         res.status(404).send("Wrong ida");
         return
@@ -154,8 +149,6 @@ app.post('/login', async (req, res) => {
 
     if (user.data.typeUser != "admin") {
         const mongoUser = await DB.Get("", <DB.typeEnum>user.data.typeUser, "?byUid=" + user.data.userId)
-        console.log("mongouser === ")
-        console.log(mongoUser.data)
         if (!mongoUser) {
             res.status(404).send("user not find in bdd");
             return
@@ -223,8 +216,6 @@ function InstanciateSession(user, sess) {
     sess.type = user.typeUser;
     sess.idType = user._id
     sess.rules = AM.GetRulesFor(user);
-    console.log("id = " + sess._id)
-    //return getUserFromSession(sess);
 
 
 }

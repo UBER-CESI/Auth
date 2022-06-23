@@ -12,7 +12,7 @@ const serverType: { [K: string]: string[] | undefined } = {
     restaurant: process.env.ADDRESSES_RESTAURANTS?.split(","),
     deliverer: process.env.ADDRESSES_DELIVERERS?.split(","),
     order: process.env.ADRESSES_ORDERS?.split(","),
-    menu: process.env.ADRESSES_MENUS?.split(","),
+    menu: process.env.ADRESSES_MENUS?.split(",") ,
     item: process.env.ADRESSES_ITEMS?.split(",")
 }
 export enum typeEnum {
@@ -48,12 +48,10 @@ function getDataFromType(model, type: typeEnum): string | undefined {
 function AskBDD(config): Promise<AxiosReturn> {
 
     return axios(config).then((response) => {
-        //console.log("respondse === ")
-        //console.log(response.data[0])
         return {
           
             error: false,
-            data: response.data[0],
+            data: response.data,
             status: (response.status === undefined) ? 200 : response.status
         }
     }).catch((e) => {
@@ -103,9 +101,7 @@ export function Delete(id: string, type: typeEnum, restUrl: string): Promise<Axi
     };
     return AskBDD(config);
 }
-export function Create(model, type: typeEnum, restUrl: string) {
-   
-    
+export function Create(model, type: typeEnum, restUrl: string) {    
     var dataUp = JSON.stringify(model)
     const config = {
         method: "PUT",
@@ -113,7 +109,6 @@ export function Create(model, type: typeEnum, restUrl: string) {
         url: getLoadBalancingAddress(type) + "/" + restUrl,
         data: dataUp
     }
-    
     return AskBDD(config);
 }
 export function Update(model, type: typeEnum, restUrl: string) {
