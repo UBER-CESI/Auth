@@ -54,10 +54,12 @@ describe("Test Customer routes", () => {
       },
       data: JSON.stringify(user),
     };
-    return instance(config).then(function (response) {
-      expect(response.status).to.equal(201);
-      userId = response.data._id;
-    });
+    return instance(config)
+      .then(function (response) {
+        expect(response.status).to.equal(201);
+        userId = response.data._id;
+      })
+      .catch((e) => console.log(e));
   });
   it("Get the customer", () => {
     var config = {
@@ -66,14 +68,16 @@ describe("Test Customer routes", () => {
       headers: { Cookie: connect_sid + ";" },
     };
 
-    return instance(config).then(function (response) {
-      expect(response.data.email).to.equal(user.email);
-      expect(response.data.nickname).to.equal(user.nickname);
-      expect(response.data.firstname).to.equal(user.firstname);
-      expect(response.data.lastname).to.equal(user.lastname);
-      expect(response.data.phoneNumber).to.equal(user.phoneNumber);
-      expect(response.status).to.equal(200);
-    });
+    return instance(config)
+      .then(function (response) {
+        expect(response.data.email).to.equal(user.email);
+        expect(response.data.nickname).to.equal(user.nickname);
+        expect(response.data.firstname).to.equal(user.firstname);
+        expect(response.data.lastname).to.equal(user.lastname);
+        expect(response.data.phoneNumber).to.equal(user.phoneNumber);
+        expect(response.status).to.equal(200);
+      })
+      .catch((e) => console.log(e));
   });
   it("Get the customer by its UID", () => {
     var config = {
