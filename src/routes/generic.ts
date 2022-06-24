@@ -18,10 +18,10 @@ const autoRouter: {
 } = {
     SESSIONERROR: (router, type) => {
         router.use(`/${type}`, (req, res, next) => {
-            if (!req.session || !req.session.email) {
+          /*  if (!req.session || !req.session.email) {
                 return res.status(401).send("User is not logged in")
             }
-            res.header
+            res.header*/
             return next()
         })
     },
@@ -44,14 +44,15 @@ const autoRouter: {
             handleAxiosReturns(dbRes, res)
         });
     },
-    CREATE: (router, type) => {
-        router.put(`/${type}`, async function (req, res) {
+    CREATE: (router, type, rest) => {
+        router.put([`/${type}`, `/${type}/:id/:rest` ], async function (req, res) {
+            rest = req.params.rest
             const ab = new Ability(req.session.rules);
             if (!ab.can('create', AM.subjects[type]( { customerId: req.session._id, ...req.body }))) {
                 return res.status(401).send("User " + req.session.nickname + " cannot do that!")
             }
             req.body.customerId=req.session._id
-            let dbRes: AxiosReturn = await DB.Create(req.body, DB.typeEnum[type], "");
+            let dbRes: AxiosReturn = await DB.Create(req.body, DB.typeEnum[type], (rest)?req.params.id+"/"+rest : "");
             handleAxiosReturns(dbRes, res);
         });
     },

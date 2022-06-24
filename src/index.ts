@@ -99,7 +99,7 @@ app.use(`/`, (req, res, next) => {
     if (!req.session.rules) {
         req.session.rules = AM.abilities["guest"]();
     }
-    res.set({'Access-Control-Allow-Origin':'*'})
+    res.set({'Access-Control-Allow-Origin':true})
     next()
 })
 
