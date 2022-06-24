@@ -179,6 +179,9 @@ app.post("/login", async (req, res) => {
       res.status(404).send("user not find in bdd");
       return;
     }
+    if(mongoUser.error){
+      res.status(mongoUser.status).send(mongoUser.error)
+    }
     res.json({
       email: user.data.email,
       nickname: user.data.nickname,
