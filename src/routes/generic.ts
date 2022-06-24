@@ -34,12 +34,11 @@ const autoRouter: {
             var restUrl
             if (!rest) {
                 if(req.query.byUid){
-                    restUrl="/?byUid=" + req.query.byUid 
+                    restUrl="?byUid=" + req.query.byUid 
                 }else{
                     restUrl = ""
                 }         
-            }            
-            console.log(req.params.id)
+            }
             let dbRes: AxiosReturn = await DB.Get("/" + (req.params.id || ""), DB.typeEnum[type], restUrl);
             handleAxiosReturns(dbRes, res)
         });
