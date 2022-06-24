@@ -88,7 +88,7 @@ function GetAdminAbilities(user) {
 
 function GetGuestAbilities() {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
-    can('manage', 'account', {typeUser: Models.UserType.Customer })
+    can('create', 'account', {typeUser: Models.UserType.Customer })
     return rules;
 }
 export const subjects: { [K: string]: Function } = {

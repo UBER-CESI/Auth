@@ -15,6 +15,7 @@ const app = express();
 import * as SQL from "./DBConnector/SQLConnector";
 import * as DB from "./DBConnector/DBConnector";
 import { AnyObject } from "@casl/ability/dist/types/types";
+import { abort } from "process";
 
 const server = app.listen(process.env.PORT || 3000, () => {
   console.log(`App Started on PORT ${process.env.PORT || 3000}`);
@@ -58,7 +59,7 @@ async function linkUserToCustomer(
     );
   } else {
     data.userId = _userId;
-    return await DB.Create(data, DB.typeEnum.customer, "/");
+    return await DB.Create(data, DB.typeEnum.customer, "");
   }
 }
 async function linkUserToRestaurant(
@@ -110,11 +111,22 @@ app.put("/user", async function (req, res) {
   let data = req.body;
   let alltypes = data.typeUser.split(",");
   let skip = false;
+  const ab = new Ability(req.session.rules)
   alltypes.forEach((type: any) => {
     if (!Object.values(Models.UserType).includes(type.toLowerCase())) {
       res.status(404).send("This type of account does not exists : " + type);
       skip = true;
       return;
+    }
+    if (!ab.can('create', AM.subjects['account']({typeUser: type.toLowerCase()}))){
+      if (type.toLowerCase() == Models.UserType.Admin){
+        res.status(404).send("You really did try?");
+      }else{
+        res.status(404).send("Not a request for low right PNJs. You're not even logged in bro...");
+      }
+    
+      skip = true;
+      return
     }
   });
   if (skip) {
@@ -141,7 +153,6 @@ app.put("/user", async function (req, res) {
           data
         );
         Object.assign(finalObject, retDB.data);
-
         if (retDB.error) {
           skip2 = true;
           return;
@@ -152,6 +163,7 @@ app.put("/user", async function (req, res) {
   if (skip2) {
     res.status(404).send();
   }
+ 
   res.json(JSON.parse(JSON.stringify(finalObject)));
 });
 app.post("/login", async (req, res) => {
