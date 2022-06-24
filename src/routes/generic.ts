@@ -17,10 +17,11 @@ const autoRouter: {
     [key: string]: (router: Router, type: string, rest?:string) => void;
 } = {
     SESSIONERROR: (router, type) => {
-        router.use(`/${type}`, (req, res, next) => {/*
+        router.use(`/${type}`, (req, res, next) => {
             if (!req.session || !req.session.email) {
                 return res.status(401).send("User is not logged in")
-            }*/
+            }
+            res.header
             return next()
         })
     },
