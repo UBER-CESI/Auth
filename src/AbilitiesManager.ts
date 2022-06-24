@@ -1,9 +1,10 @@
 
-import { AbilityBuilder, Ability, buildMongoQueryMatcher } from '@casl/ability';
+import { AbilityBuilder, Ability, buildMongoQueryMatcher, subject, MongoQuery } from '@casl/ability';
 import { builtinModules } from 'module';
 import { isErrored } from 'stream';
 import { SQLRes } from './DBConnector/SQLConnector';
 import * as Models from './Models'
+import { $nor } from 'sift'
 import * as SQL from "./DBConnector/SQLConnector"
 
 export function GetRulesFor(user) {
@@ -25,38 +26,32 @@ export const abilities: { [K: string]: Function } = {
 function GetCustomerAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
     can('read', 'account');
-    can('manage', 'account', { userId: user.id });
-    can('create', 'order');
-    can('delete', 'order', { customerId: user.id, status: undefined });
-    can('pay', 'order', { customerId: user.id });
-    can('read', 'orderHistory', { customerId: user.id });
-    can('read', 'orderDeliveryStatus', { customerId: user.id });
-    can('create', 'sponsorLink', { idOwner: user.id, type: user.type });
+    can('create', 'account', {typeUser: Models.UserType.Customer })
+    can('manage', 'account', { userId: user.userId });
+    can('create', 'order', {customerId : user._id , status:null}).because("customers can only create a command for themselves without a status ('status'=null)" );
+    can('delete', 'order', { customerId: user._id, status:null }).because("customers can only delete theirs own commands if status = null");
+    can('pay', 'order', { customerId: user._id,status: undefined });
+    can('read', 'order', { customerId: user._id });
     return rules;
 
 }
 
 function GetRestaurateurAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
-    can('manage', 'account', { idOwner: user.id });
-    can('manage', 'restaurant', { userId: user.id });
-    can('manage', 'articles', { restaurantId: user.idRestaurant });
-    can('manage', 'menu', { restaurantId: user.idRestaurant });
-    can('read', 'order', { restaurantId: user.idRestaurant });
-    can('accept', 'order', { OrderStatus: Models.OrderStatus.Payed, restaurantId: user.idRestaurant });
-    can('read', 'orderDeliveryStatus', { restaurantId: user.idRestaurant });
-    can('read', 'orderHistory', { restaurantId: user.idRestaurant });
-    can('read', 'restaurantStatistics', { restaurantId: user.idRestaurant });
-    can('create', 'sponsorLink', { idOwner: user.id, type: user.type });
+    can('manage', 'account', { userId: user.userId });
+    can('manage', 'restaurant', { userId: user._id });
+    can('manage', 'article', { restaurantId: user._id });
+    can('manage', 'menu', { restaurantId: user._id });
+    can('read', 'order', { restaurantId: user._id });
+    can('accept', 'order', { OrderStatus: Models.OrderStatus.Payed, restaurantId: user._id });
     return rules;
 }
 function GetDelivererAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
     can('do', 'better hoola-hoop');
-    can('manage', 'account', { idOwner: user.id });
-    can('accept', 'orders', { OrderStatus: Models.OrderStatus.Done });
-    can('deliver', 'order', { OrderStatus: Models.OrderStatus.InDelivery, idDeliverer: user.id });
-    can('create', 'sponsorLink', { idOwner: user.id, type: user.type });
+    can('manage', 'account', { userId: user.userId });
+    can('accept', 'order', { OrderStatus: Models.OrderStatus.Done });
+    can('deliver', 'order', { OrderStatus: Models.OrderStatus.InDelivery, idDeliverer: user.userId });
     return rules;
 }
 
@@ -84,6 +79,7 @@ function GetTechnicianAbilities(user) {
 }
 function GetAdminAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
+    
     can('manage', 'all');
 
     return rules;
@@ -92,6 +88,15 @@ function GetAdminAbilities(user) {
 
 function GetGuestAbilities() {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
-    can('create', 'customer')
+    can('manage', 'account', {typeUser: Models.UserType.Customer })
     return rules;
 }
+export const subjects: { [K: string]: Function } = {
+    account:subject.bind(null, 'account'),
+    customer:subject.bind(null, 'customer'),
+    order:subject.bind(null, 'order'),
+    menu:subject.bind(null,'menu'),
+    article:subject.bind(null, 'article'),
+    restaurant:subject.bind(null, 'restaurant')
+}
+

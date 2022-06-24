@@ -52,8 +52,6 @@ router.post('/order/:id', async function (req, res) {
         return;
     }
     const ab = new Ability(req.session.rules);
-
-    console.log(req.body.items)
     const restaurant: Models.Restaurants = req.body
     restaurant.id = req.params.id
     if (!ab.can('update', restaurant)) {
@@ -111,8 +109,6 @@ router.post('/order/:id/accept', async function (req, res) {
         return;
     }
     const ab = new Ability(req.session.rules);
-
-    console.log(req.body)
     const restaurant: Models.Restaurants = req.body
     restaurant.id = req.params.id
     if (!ab.can('update', restaurant)) {

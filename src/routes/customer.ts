@@ -1,9 +1,10 @@
-import { Router } from "express"
+/*import { Router } from "express"
 import session from "express-session"
 import { Ability } from "@casl/ability";
 import { AxiosReturn } from "../DBConnector/DBConnector";
 import * as DB from "../DBConnector/DBConnector"
 import * as Models from "../Models";
+import * as AM from "../AbilitiesManager"
 
 function handleAxiosReturns(dbRes, res) {
     if (!dbRes.status) {
@@ -28,9 +29,10 @@ router.use("/customer", (req, res, next) => {
 })
 //getCustomer
 router.get(['/customer', '/customer/:id'], async function (req, res) {
+    console.log("nezjh == " + req.session.nickname)
     const ab = new Ability(req.session.rules);
-    if (!ab.can('read', "account")) {
-        res.status(401).send("User " + req.session.nickname + " cannot do that!")
+    if (!ab.can('read', 'account')) {
+        res.status(401).send("User " + req.session.nickname + " cannot do this!")
         return
     }
     let dbRes: AxiosReturn = await DB.Get(req.params.id || "", DB.typeEnum.customer, "");
@@ -111,4 +113,4 @@ router.post('/customer/:id/suspend', async function (req, res) {
     res.send(dbRes.data)
 });
 
-export default router
+export default router*/

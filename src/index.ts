@@ -1,5 +1,5 @@
 import * as Models from "./Models";
-import * as Abilities from "./AbilitiesManager";
+import * as AM from "./AbilitiesManager";
 import {
   Ability,
   ExtractSubjectType,
@@ -29,18 +29,15 @@ app.use(
   })
 );
 declare module "express-session" {
-  interface SessionData {
-    username: string;
-    nickname: string;
-    email: string;
-    userId: string;
-    type: Models.UserType;
-    rules: SubjectRawRule<
-      string,
-      ExtractSubjectType<Subject>,
-      MongoQuery<AnyObject>
-    >[];
-  }
+    interface SessionData {
+        username: string,
+        nickname: string,
+        email: string
+        userId: string;
+        type: Models.UserType;
+        _id:string
+        rules: SubjectRawRule<string, ExtractSubjectType<Subject>, MongoQuery<AnyObject>>[]
+    }
 }
 const LinkUser: { [K: string]: Function } = {
   customer: linkUserToCustomer,
@@ -99,13 +96,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/views"));
 
 app.use(`/`, (req, res, next) => {
-  if (!req.session.rules) {
-    req.session.rules = Abilities.abilities["guest"]();
-  }
-  next();
-});
+    if (!req.session.rules) {
+        req.session.rules = AM.abilities["guest"]();
+    }
+    next()
+})
 
-require("./routes")(app);
+require('./routes')(app);
 
 //createUser
 app.put("/user", async function (req, res) {
@@ -239,13 +236,20 @@ app.post("/logout", (req, res) => {
   });
 });
 
-function InstanciateSession(user: SQL.DataUserSql, sess: any) {
-  sess.nickname = user.nickname;
-  sess.email = user.email;
-  sess.userId = user.userId;
-  sess.type = user.typeUser;
-  sess.rules = Abilities.GetRulesFor(user);
-  //return getUserFromSession(sess);
+
+
+
+
+function InstanciateSession(user, sess) {
+
+    sess.nickname = user.nickname;
+    sess.email = user.email;
+    sess.userId = user.userId;
+    sess.type = user.typeUser;
+    sess._id = user._id
+    sess.rules = AM.GetRulesFor(user);
+
+
 }
 
 export default {
