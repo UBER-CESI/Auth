@@ -99,6 +99,7 @@ app.use(`/`, (req, res, next) => {
     if (!req.session.rules) {
         req.session.rules = AM.abilities["guest"]();
     }
+    res.set({'Access-Control-Allow-Origin':'*'})
     next()
 })
 
@@ -247,7 +248,7 @@ function InstanciateSession(user, sess) {
     sess.email = user.email;
     sess.userId = user.userId;
     sess.type = user.typeUser;
-    sess._id = user._id
+    sess._id = user._id;
     sess.rules = AM.GetRulesFor(user);
 
 
