@@ -173,14 +173,15 @@ app.post("/login", async (req, res) => {
     const mongoUser = await DB.Get(
       "",
       <DB.typeEnum>user.data.typeUser,
-      "?byUid=" + user.data.userId
+      "/?byUid=" + user.data.userId
     );
     if (!mongoUser) {
       res.status(404).send("user not find in bdd");
       return;
     }
     if(mongoUser.error){
-      res.status(mongoUser.status).send(mongoUser.error)
+      res.status(mongoUser.status).send(mongoUser.data)
+      return
     }
     res.json({
       email: user.data.email,

@@ -34,11 +34,12 @@ const autoRouter: {
             var restUrl
             if (!rest) {
                 if(req.query.byUid){
-                    restUrl="?byUid=" + req.query.byUid 
+                    restUrl="/?byUid=" + req.query.byUid 
                 }else{
                     restUrl = ""
                 }         
             }            
+            console.log(req.params.id)
             let dbRes: AxiosReturn = await DB.Get("/" + (req.params.id || ""), DB.typeEnum[type], restUrl);
             handleAxiosReturns(dbRes, res)
         });
@@ -123,7 +124,7 @@ const autoRouter: {
     ACCEPT: (router, type) => {
         router.post(`/${type}/:id/accept`, async function (req, res) {
             const ab = new Ability(req.session.rules);
-            let getOrder: AxiosReturn = await DB.Get(req.params.id, DB.typeEnum.order, "");
+            let getOrder: AxiosReturn = await DB.Get("/"+req.params.id, DB.typeEnum.order, "");
             if (getOrder.error){
                 res.status(404).send("no order for this id")
                 return 
@@ -132,7 +133,7 @@ const autoRouter: {
                 res.status(401).send("User " + req.session.nickname + " cannot do that!")
                 return
             }
-            let dbRes: AxiosReturn = await DB.Update({id:req.params.id, ...req.body}, DB.typeEnum.order, "/pay");
+            let dbRes: AxiosReturn = await DB.Update({id:req.params.id, ...req.body}, DB.typeEnum.order, "/accept");
             handleAxiosReturns(dbRes, res)
 
         });

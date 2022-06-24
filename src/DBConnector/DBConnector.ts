@@ -118,7 +118,7 @@ export function Get(
   const config = {
     method: "GET",
     headers: { "Content-Type": "application/json" },
-    url: getLoadBalancingAddress(type) + "/" + id + restUrl,
+    url: getLoadBalancingAddress(type) +  id + restUrl,
   };
   return AskBDD(config);
 }
