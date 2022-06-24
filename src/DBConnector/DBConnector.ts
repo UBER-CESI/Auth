@@ -7,6 +7,7 @@ import * as Models from "../Models";
 import * as ph from "../PlaceHolders";
 
 const serverType: { [K: string]: string[] | undefined } = {
+  notifications: process.env.ADDRESSES_NOTIFICATIONS?.split(","),
   customer: process.env.ADDRESSES_CUSTOMERS?.split(","),
   restaurant: process.env.ADDRESSES_RESTAURANTS?.split(","),
   deliverer: process.env.ADDRESSES_DELIVERERS?.split(","),
@@ -15,6 +16,7 @@ const serverType: { [K: string]: string[] | undefined } = {
   item: process.env.ADRESSES_ITEMS?.split(","),
 };
 export enum typeEnum {
+  notifications = "notifications",
   customer = "customer",
   restaurant = "restaurant",
   deliverer = "deliverer",
@@ -76,7 +78,7 @@ function getDataFromType(model, type: typeEnum): string | undefined {
   return formatter[type](model) || "";
 }
 
-function AskBDD(config): Promise<AxiosReturn> {
+export function AskBDD(config): Promise<AxiosReturn> {
   return axios(config)
     .then((response) => {
       return {
@@ -86,7 +88,6 @@ function AskBDD(config): Promise<AxiosReturn> {
       };
     })
     .catch((e) => {
-      
       return {
         error: true,
         data: e,
@@ -118,7 +119,7 @@ export function Get(
   const config = {
     method: "GET",
     headers: { "Content-Type": "application/json" },
-    url: getLoadBalancingAddress(type) +  id + restUrl,
+    url: getLoadBalancingAddress(type) + id + restUrl,
   };
   return AskBDD(config);
 }
