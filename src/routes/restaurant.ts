@@ -114,7 +114,6 @@ router.put('/restaurant/:id/menu', async function (req, res) {
 
     const menu = req.body
     menu.restaurantId = req.params.id
-    console.log(menu.items);
     if (!ab.can('create', menu)) {
         res.status(401).send("User " + req.session.username + " cannot do that!")
         return
@@ -142,7 +141,6 @@ router.put('/restaurant/:id/item', async function (req, res) {
 
     const menu = req.body
     menu.restaurantId = req.params.id
-    console.log(menu.items);
     if (!ab.can('create', menu)) {
         res.status(401).send("User " + req.session.username + " cannot do that!")
         return
@@ -154,7 +152,6 @@ router.put('/restaurant/:id/item', async function (req, res) {
 
 //getMenu
 router.get('/restaurant/menu/:id', async function (req, res) {
-    console.log(req.session.email)
     const ab = new Ability(req.session.rules);
 
     const menu = {

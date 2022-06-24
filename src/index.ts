@@ -134,7 +134,6 @@ app.put("/user", async function (req, res) {
 
   await Promise.all(
     alltypes.map(async (type: any) => {
-      console.log(data);
       if (type != "admin") {
         var retDB: DB.AxiosReturn = await LinkUser[type](
           sqlRes.data.userId,
@@ -152,7 +151,6 @@ app.put("/user", async function (req, res) {
   if (skip2) {
     res.status(404).send();
   }
-  console.log(JSON.stringify(finalObject));
   res.json(JSON.parse(JSON.stringify(finalObject)));
 });
 app.post("/login", async (req, res) => {
@@ -165,7 +163,6 @@ app.post("/login", async (req, res) => {
     res.status(404).json(user);
     return;
   }
-  console.log(user);
   if (!(await bcrypt.compare(req.body.password, user.data.pwd))) {
     res.status(404).send("Wrong ida");
     return;
@@ -187,7 +184,7 @@ app.post("/login", async (req, res) => {
       nickname: user.data.nickname,
       typeUser: user.data.typeUser,
       userId: user.data.userId,
-      ...mongoUser.data?.data,
+      ...mongoUser.data[0],
     });
     return;
   }
