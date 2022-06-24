@@ -24,8 +24,8 @@ app.use(
   session({
     secret: "X5ix1MylhUTBWRU",
     saveUninitialized: true,
-    resave: true,
-    cookie: { maxAge: 1000000 }, // in miliseconds
+    resave: true
+    //cookie: { maxAge: 1000000 }, // in miliseconds
   })
 );
 declare module "express-session" {
