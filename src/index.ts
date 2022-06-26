@@ -123,7 +123,7 @@ app.put("/user", async function (req, res) {
       if (type.toLowerCase() == Models.UserType.Admin){
         res.status(404).send("You really did try?");
       }else{
-        res.status(404).send("Not a request for low right PNJs. You're not even logged in bro...");
+        res.status(404).send("Not a request for low right PNJs. ");
       }
     
       skip = true;
@@ -181,7 +181,6 @@ app.post("/login", async (req, res) => {
     res.status(404).send("Wrong ida");
     return;
   }
-  InstanciateSession(user.data, req.session);
 
   if (user.data.typeUser != "admin") {
     const mongoUser = await DB.Get(
@@ -197,21 +196,25 @@ app.post("/login", async (req, res) => {
       res.status(mongoUser.status).send(mongoUser.data)
       return
     }
-    res.json({
+    const userLogedIn = {
       email: user.data.email,
       nickname: user.data.nickname,
       typeUser: user.data.typeUser,
       userId: user.data.userId,
       ...mongoUser.data[0],
-    });
+    }
+    InstanciateSession(userLogedIn, req.session);
+    res.json(userLogedIn);
     return;
   }
-  res.json({
+  const userLogedIn = {
     email: user.data.email,
     nickname: user.data.nickname,
     typeUser: user.data.typeUser,
-    userId: user.data.userId,
-  });
+    userId: user.data.userId
+  }
+  InstanciateSession(userLogedIn, req.session);
+  res.json(userLogedIn);
 });
 
 app.get("/login/canDoHoolaHoop", (req, res) => {
