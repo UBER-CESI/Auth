@@ -41,10 +41,10 @@ function GetCustomerAbilities(user) {
 function GetRestaurateurAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
     can('read', ['customer','restaurant','restaurantmenu', 'restaurantitem','deliverer']);
-    can ('read', 'restaurantstats', {restaurantId : user._id })
+    can ('read', 'restaurantstats', {restaurantId : user._id });
+    can('manage', 'restaurantitem', {restaurantId:user._id})
     can('manage', 'account', { userId: user.userId });
     can('manage', 'restaurant', { userId: user._id });
-    can('manage', 'article', { restaurantId: user._id });
     can('manage', 'menu', { restaurantId: user._id });
     can('read', 'order', { restaurantId: user._id });
     can('accept', 'order', { OrderStatus: Models.OrderStatus.Payed, restaurantId: user._id });
@@ -96,13 +96,14 @@ function GetGuestAbilities() {
     can('read', 'account')
     return rules;
 }
-export const subjects: { [K: string]: Function } = {
+export const subjects: { [K: string]: Function} = {
     account:subject.bind(null, 'account'),
     customer:subject.bind(null, 'customer'),
     order:subject.bind(null, 'order'),
     menu:subject.bind(null,'menu'),
     article:subject.bind(null, 'article'),
     restaurant:subject.bind(null, 'restaurant'),
-    restaurantstats:subject.bind(null,'restaurantstats')
+    restaurantstats:subject.bind(null,'restaurantstats'),
+    restaurantitem:subject.bind(null,'restaurantitem'),
 }
 

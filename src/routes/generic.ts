@@ -14,9 +14,9 @@ function handleAxiosReturns(dbRes, res) {
   res.status(dbRes.status).send(dbRes.data);
 }
 const autoRouter: {
-    [key: string]: (router: Router, type: string, rest?:string) => void;
+    [key: string]: (router: Router, type: string, rest:string) => void;
 } = {
-    SESSIONERROR: (router, type) => {
+    SESSIONERROR: (router, type, rest) => {
         router.use(`/${type}`, (req, res, next) => {
             if (!req.session || !req.session.email) {
                 return res.status(401).send("User is not logged in")
@@ -44,15 +44,16 @@ const autoRouter: {
         router.put([`/${type}`, `/${type}/:id/:rest` ], async function (req, res) {
             rest = req.params.rest
             const ab = new Ability(req.session.rules);
-            if (!ab.can('create', AM.subjects[type]( { customerId: req.session._id, ...req.body }))) {
+            console.log(type+rest)
+            if (!ab.can('create', AM.subjects[type+rest]( { restaurantId:req.session._id, customerId: req.session._id, ...req.body }))) {
                 return res.status(401).send("User " + req.session.nickname + " cannot do that!")
             }
             req.body.customerId=req.session._id
-            let dbRes: AxiosReturn = await DB.Create(req.body, DB.typeEnum[type], (rest)?req.params.id+"/"+rest : "");
+            let dbRes: AxiosReturn = await DB.Create(req.body, DB.typeEnum[type], (rest&& req.params.id)?"/" +req.params.id+"/"+rest : "");
             handleAxiosReturns(dbRes, res);
         });
     },
-    UPDATE: (router, type) => {
+    UPDATE: (router, type,rest) => {
         router.post(`/${type}/:id`, async function (req, res) {
             const ab = new Ability(req.session.rules);
             const body = { id: req.params.id, ...req.body }
@@ -71,7 +72,7 @@ const autoRouter: {
 
         });
     },
-    SUSPEND: (router, type) => {
+    SUSPEND: (router, type,rest) => {
         router.post(`/${type}/:id/suspend`, async function (req, res) {
             const ab = new Ability(req.session.rules);
             const body = { id: req.params.id, ...req.body }
@@ -84,7 +85,7 @@ const autoRouter: {
       handleAxiosReturns(dbRes, res);
     });
   },
-    DELETE: (router, type) => {
+    DELETE: (router, type,rest) => {
         router.delete(`/${type}/:id`, async function (req, res) {
             const ab = new Ability(req.session.rules);
             const DBRes = await DB.Get("/"+req.params.id, DB.typeEnum[type], "")
@@ -101,7 +102,7 @@ const autoRouter: {
            
         });
     },
-    PAY: (router, type) => {
+    PAY: (router, type,rest) => {
         router.post(`/${type}/:id/pay`, async function (req, res) {
             const ab = new Ability(req.session.rules);
             const getOrder: AxiosReturn = await DB.Get("/"+req.params.id, DB.typeEnum.order, "");
@@ -118,7 +119,7 @@ const autoRouter: {
 
         });
     },
-    ACCEPT: (router, type) => {
+    ACCEPT: (router, type,rest) => {
         router.post(`/${type}/:id/accept`, async function (req, res) {
             const ab = new Ability(req.session.rules);
             let getOrder: AxiosReturn = await DB.Get("/"+req.params.id, DB.typeEnum.order, "");
