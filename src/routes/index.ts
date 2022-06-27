@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import autoRouter from "./generic";
-import noitifications from "./notifications";
+import notifications from "./notifications";
 const saltRounds = 10;
 interface IdAbility {
   idOwner: string;
@@ -26,7 +26,7 @@ function createRouter(
   return router;
 }
 module.exports = function (app) {
-  app.use("/notifications", noitifications);
+  app.use("/notifications", notifications);
   app.use(
     "/",
     createRouter(

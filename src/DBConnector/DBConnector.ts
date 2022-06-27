@@ -25,6 +25,12 @@ export enum typeEnum {
   item = "item",
 }
 
+interface PushSubscription {
+  endpoint: string
+  expirationTime: number;
+  keys: Record<"p256dh" | "auth", string>
+}
+
 export interface AxiosReturn {
   data?: AxiosResponse<any, any>;
   error?: boolean;
@@ -164,6 +170,26 @@ export function SuspendCustomer(id: string, sus: string): Promise<AxiosReturn> {
     headers: { "Content-Type": "application/json" },
     url: getLoadBalancingAddress(typeEnum.customer) + "/" + id + "/suspend",
     data: { suspend: sus },
+  };
+  return AskBDD(config);
+}
+
+export function PushSubscribe(userId: string, type: typeEnum, subscription: PushSubscription): Promise<AxiosReturn> {
+  const config = {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    url: getLoadBalancingAddress(type) + "/" + userId + "/subscribe",
+    data: { subscription },
+  };
+  return AskBDD(config);
+}
+
+export function PushUnubscribe(userId: string, type: typeEnum, subscription: PushSubscription): Promise<AxiosReturn> {
+  const config = {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    url: getLoadBalancingAddress(type) + "/" + userId + "/unsubscribe",
+    data: { subscription },
   };
   return AskBDD(config);
 }

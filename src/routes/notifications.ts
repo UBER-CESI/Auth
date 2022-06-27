@@ -19,7 +19,7 @@ function handleAxiosReturns(dbRes, res) {
 }
 
 const router = Router();
-router.use(`/subscribe`, async (req, res, next) => {
+router.post(`/subscribe`, async (req, res, next) => {
   if (!req.session || !req.session.email) {
     return res.status(401).send("User is not logged in");
   }
@@ -30,16 +30,13 @@ router.use(`/subscribe`, async (req, res, next) => {
     data: { subscription: req.body.subscription },
   };
 
-  const retDB = await DB.Get(
-    "/",
-    DB.typeEnum[req.session.type],
-    "/byUid=" + req.session._id
-  );
-  console.log(retDB, req.session._id);
-  /*let dbRes: AxiosReturn = await Update();
+  //const userID = "62b30e23edb06dd774f80dd5"
+  const userID = req.session.userId
+  //const sessionType = DB.typeEnum.customer
+  const sessionType = DB.typeEnum[req.session.type]
+  let dbRes: AxiosReturn = await DB.PushSubscribe(userID, sessionType, req.body.subscription);
+  console.log(dbRes)
   handleAxiosReturns(dbRes, res);
-  res.header;*/
-  return next();
 });
 
 export default router;
