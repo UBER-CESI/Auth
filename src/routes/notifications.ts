@@ -21,7 +21,7 @@ function handleAxiosReturns(dbRes, res) {
 const router = Router();
 router.post(`/subscribe`, async (req, res, next) => {
   if (!req.session || !req.session.email) {
-    return res.status(401).send("User is not logged in");
+    return res.status(403).send("User is not logged in");
   }
   const config = {
     method: "POST",

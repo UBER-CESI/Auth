@@ -22,7 +22,7 @@ function createRouter(capabilities: Array<string>, type: string, rest?: string) 
   return router
 }
 module.exports = function (app) {
-
+  app.use("/notifications", notifications)
   app.use("/", createRouter(["CREATE", "SESSIONERROR", "GET", "UPDATE", "DELETE", "SUSPEND"], "customer"))
   app.use("/", createRouter(["SESSIONERROR", "GET"], "customer", "history"))
   app.use("/", createRouter(["SESSIONERROR", "CREATE", "GET", "UPDATE", "DELETE"], "restaurant"))
