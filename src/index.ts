@@ -25,7 +25,8 @@ app.use(
   session({
     secret: "X5ix1MylhUTBWRU",
     saveUninitialized: true,
-    resave: true
+    resave: true,
+    cookie:{sameSite:"none"}
     //cookie: { maxAge: 1000000 }, // in miliseconds
   })
 );
@@ -119,7 +120,7 @@ app.put("/user", async function (req, res) {
       return;
     }
     
-    if (!ab.can('create', AM.subjects['account']({typeUser: type.toLowerCase()}))){
+    if (!ab.can('create', AM.subjects('account')({typeUser: type.toLowerCase()}))){
       if (type.toLowerCase() == Models.UserType.Admin){
         res.status(404).send("You really did try?");
       }else{
