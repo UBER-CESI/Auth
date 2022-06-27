@@ -19,8 +19,8 @@ const autoRouter: {
     SESSIONERROR: (router, type, rest) => {
         router.use(`/${type}`, (req, res, next) => {
             if (!req.session || !req.session.email) {
-                //return res.status(401).send("User is not logged in")
-                req.session.rules = AM.GetRulesFor({typeUser : "admin"})
+                return res.status(401).send("User is not logged in")
+                //req.session.rules = AM.GetRulesFor({typeUser : "admin"})
             }
             return next()
         })
@@ -33,13 +33,13 @@ const autoRouter: {
             if(req.query.byUid){
                 console.log("kjjsbcvkebveksb")
                 restUrl="?byUid=" + req.query.byUid  
-                if(!ab.can('read', AM.subjects[type])){
+                if(!ab.can('read', AM.subjects(type))){
                     res.status(401).send("User " + req.session.nickname + " cannot do that!")
                     return 
                 }
             }else{
                 console.log(type+restUrl)
-                if (!ab.can('read', AM.subjects[type+restUrl]({restaurantId : req.params.id})) ) {
+                if (!ab.can('read', AM.subjects(type+restUrl)({restaurantId : req.params.id})) ) {
                     res.status(401).send("User " + req.session.nickname + " cannot do that!")
                     return
                 }     
@@ -57,7 +57,7 @@ const autoRouter: {
             
             const ab = new Ability(req.session.rules);
             console.log(type+resteUrl)
-            if (!ab.can('create', AM.subjects[type+resteUrl]( { restaurantId:req.session._id, customerId: req.session._id, ...req.body }))) {
+            if (!ab.can('create', AM.subjects(type+resteUrl)( { restaurantId:req.session._id, customerId: req.session._id, ...req.body }))) {
                 return res.status(401).send("User " + req.session.nickname + " cannot do that!")
             }
             req.body.customerId=req.session._id
@@ -75,7 +75,7 @@ const autoRouter: {
                 res.status(404).send("no " + type + " with this id has been found")
                 return
             }
-            if (!ab.can('update', AM.subjects[type]( { userId: req.params.id, ...req.body }))) {
+            if (!ab.can('update', AM.subjects(type)( { userId: req.params.id, ...req.body }))) {
                 res.status(401).send("User " + req.session.nickname + " cannot do that!")
                 return
             }
@@ -89,7 +89,7 @@ const autoRouter: {
         router.post(`/${type}/:id/suspend`, async function (req, res) {
             const ab = new Ability(req.session.rules);
             const body = { id: req.params.id, ...req.body }
-            if (!ab.can('suspend', AM.subjects[type](req.body))) {
+            if (!ab.can('suspend', AM.subjects(type)(req.body))) {
                 res.status(404).send("User " + req.session.nickname + " cannot do that!")
                 return
             }
@@ -102,11 +102,11 @@ const autoRouter: {
         router.delete(`/${type}/:id`, async function (req, res) {
             const ab = new Ability(req.session.rules);
             const DBRes = await DB.Get("/"+req.params.id, DB.typeEnum[type], "")
-            if (DBRes.error){
+            /*if (DBRes.error){
                 res.status(404).send("no " + type + " found for this id")
                 return 
-            }
-            if (!ab.can('delete', AM.subjects[type]({status:(<any>DBRes.data).status, customerId:req.session._id, userId: req.params.id, ...req.body }))) {
+            }*/
+            if (!ab.can('delete', AM.subjects(type)({status:(<any>DBRes.data).status, customerId:req.session._id, userId: req.params.id, ...req.body }))) {
                 res.status(404).send("User " + req.session.nickname + " cannot do that!")
                 return
             }
@@ -123,7 +123,7 @@ const autoRouter: {
                 res.status(404).send("no order for this id")
                 return 
             }
-            if (!ab.can('pay', AM.subjects[type](getOrder.data))) {
+            if (!ab.can('pay', AM.subjects(type)(getOrder.data))) {
                 res.status(401).send("User " + req.session.nickname + " cannot do that!")
                 return
             }
@@ -140,7 +140,7 @@ const autoRouter: {
                 res.status(404).send("no order for this id")
                 return 
             }
-            if (!ab.can('accept', AM.subjects[type](getOrder.data))) {
+            if (!ab.can('accept', AM.subjects(type)(getOrder.data))) {
                 res.status(401).send("User " + req.session.nickname + " cannot do that!")
                 return
             }
