@@ -42,7 +42,8 @@ function GetRestaurateurAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
     can('read', ['customer','restaurant','restaurantmenu', 'restaurantitem','deliverer']);
     can ('read', 'restaurantstats', {restaurantId : user._id });
-    can('manage', 'restaurantitem', {restaurantId:user._id})
+    can('manage', 'restaurantitem', {restaurantId:user._id});
+    can('manage', 'restaurantmenu', {restaurantId:user._id})
     can('manage', 'account', { userId: user.userId });
     can('manage', 'restaurant', { userId: user._id });
     can('manage', 'menu', { restaurantId: user._id });
@@ -105,5 +106,6 @@ export const subjects: { [K: string]: Function} = {
     restaurant:subject.bind(null, 'restaurant'),
     restaurantstats:subject.bind(null,'restaurantstats'),
     restaurantitem:subject.bind(null,'restaurantitem'),
+    restaurantmenu:subject.bind(null, 'restaurantmenu')
 }
 
