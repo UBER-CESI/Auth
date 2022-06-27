@@ -105,6 +105,7 @@ app.use(`/`, (req, res, next) => {
     res.set({ 'Access-Control-Allow-Origin': "http://localhost:8100" })
     res.set({ 'Access-Control-Allow-Methods': "POST, OPTIONS, GET, PUT, DELETE" })
     res.set({ 'Access-Control-Allow-Headers': "Content-Type" })
+    res.set({ 'Access-Control-Allow-Credentials': true })
   }
   next()
 })
