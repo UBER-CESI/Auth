@@ -22,7 +22,6 @@ const autoRouter: {
                 //return res.status(401).send("User is not logged in")
                 req.session.rules = AM.GetRulesFor({typeUser : "admin"})
             }
-            res.header('Access-Control-Allow-Credentials',"true");
             return next()
         })
     },
