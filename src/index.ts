@@ -26,27 +26,27 @@ app.use(
     secret: "X5ix1MylhUTBWRU",
     saveUninitialized: true,
     resave: true,
-    proxy:true,
-    cookie:{sameSite:"none", secure:true}
+    proxy: true,
+    cookie: { sameSite: "none", secure: true }
     //cookie: { maxAge: 1000000 }, // in miliseconds
   })
 );
 declare module "express-session" {
-    interface SessionData {
-        username: string,
-        nickname: string,
-        email: string
-        userId: string;
-        type: Models.UserType;
-        _id:string
-        rules: SubjectRawRule<string, ExtractSubjectType<Subject>, MongoQuery<AnyObject>>[]
-    }
+  interface SessionData {
+    username: string,
+    nickname: string,
+    email: string
+    userId: string;
+    type: Models.UserType;
+    _id: string
+    rules: SubjectRawRule<string, ExtractSubjectType<Subject>, MongoQuery<AnyObject>>[]
+  }
 }
 const LinkUser: { [K: string]: Function } = {
   customer: linkUserToCustomer,
   restaurant: linkUserToRestaurant,
   deliverer: linkUserToDeliverer,
-  admin: () => {},
+  admin: () => { },
 };
 
 async function linkUserToCustomer(
@@ -97,14 +97,23 @@ async function linkUserToDeliverer(
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/views"));
-
 app.use(`/`, (req, res, next) => {
-    if (!req.session.rules) {
-        req.session.rules = AM.abilities["guest"]();
-    }
-    res.set({'Access-Control-Allow-Origin':true})
-    next()
+  if (!req.session.rules) {
+    req.session.rules = AM.abilities["guest"]();
+  }
+  if (process.env.ENVIRONMENT == "dev") {
+    res.set({ 'Access-Control-Allow-Origin': "http://localhost:8100" })
+    res.set({ 'Access-Control-Allow-Methods': "POST, OPTIONS, GET, PUT, DELETE" })
+    res.set({ 'Access-Control-Allow-Headers': "Content-Type" })
+  }
+  next()
 })
+if (process.env.ENVIRONMENT == "dev") {
+  app.options("/*", (req, res) => {
+    res.status(204).send()
+  })
+}
+
 
 require('./routes')(app);
 
@@ -120,14 +129,14 @@ app.put("/user", async function (req, res) {
       skip = true;
       return;
     }
-    
-    if (!ab.can('create', AM.subjects('account')({typeUser: type.toLowerCase()}))){
-      if (type.toLowerCase() == Models.UserType.Admin){
+
+    if (!ab.can('create', AM.subjects('account')({ typeUser: type.toLowerCase() }))) {
+      if (type.toLowerCase() == Models.UserType.Admin) {
         res.status(404).send("You really did try?");
-      }else{
+      } else {
         res.status(404).send("Not a request for low right PNJs. ");
       }
-    
+
       skip = true;
       return
     }
@@ -166,7 +175,7 @@ app.put("/user", async function (req, res) {
   if (skip2) {
     res.status(404).send();
   }
- 
+
   res.json(JSON.parse(JSON.stringify(finalObject)));
 });
 app.post("/login", async (req, res) => {
@@ -194,7 +203,7 @@ app.post("/login", async (req, res) => {
       res.status(404).send("user not find in bdd");
       return;
     }
-    if(mongoUser.error){
+    if (mongoUser.error) {
       res.status(mongoUser.status).send(mongoUser.data)
       return
     }
@@ -262,18 +271,18 @@ app.post("/logout", (req, res) => {
 
 function InstanciateSession(user, sess) {
 
-    sess.nickname = user.nickname;
-    sess.email = user.email;
-    sess.userId = user.userId;
-    sess.type = user.typeUser;
-    sess._id = user._id;
-    sess.rules = AM.GetRulesFor(user);
+  sess.nickname = user.nickname;
+  sess.email = user.email;
+  sess.userId = user.userId;
+  sess.type = user.typeUser;
+  sess._id = user._id;
+  sess.rules = AM.GetRulesFor(user);
 
 
 }
 
 export default {
-  async spawn() {},
+  async spawn() { },
   stop() {
     server.close();
   },
