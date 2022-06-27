@@ -1,11 +1,12 @@
 
-import { AbilityBuilder, Ability, buildMongoQueryMatcher, subject, MongoQuery } from '@casl/ability';
+import { AbilityBuilder,createAliasResolver , Ability, buildMongoQueryMatcher, subject, MongoQuery } from '@casl/ability';
 import { builtinModules } from 'module';
 import { isErrored } from 'stream';
 import { SQLRes } from './DBConnector/SQLConnector';
 import * as Models from './Models'
 import { $nor } from 'sift'
 import * as SQL from "./DBConnector/SQLConnector"
+import { restaurant } from './PlaceHolders';
 
 export function GetRulesFor(user) {
     return (abilities[user.typeUser](user));
@@ -25,22 +26,26 @@ export const abilities: { [K: string]: Function } = {
 
 function GetCustomerAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
-    can('read', 'account');
+    can('read', ['customer','restaurant','restaurantmenu','restaurantitem','deliverer']);
     can('create', 'account', {typeUser: Models.UserType.Customer })
     can('manage', 'account', { userId: user.userId });
     can('create', 'order', {customerId : user._id , status:null}).because("customers can only create a command for themselves without a status ('status'=null)" );
     can('delete', 'order', { customerId: user._id, status:null }).because("customers can only delete theirs own commands if status = null");
     can('pay', 'order', { customerId: user._id,status: undefined });
     can('read', 'order', { customerId: user._id });
+ 
     return rules;
 
 }
 
 function GetRestaurateurAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
+    can('read', ['customer','restaurant','restaurantmenu', 'restaurantitem','deliverer']);
+    can ('read', 'restaurantstats', {restaurantId : user._id });
+    can('manage', 'restaurantitem', {restaurantId:user._id});
+    can('manage', 'restaurantmenu', {restaurantId:user._id})
     can('manage', 'account', { userId: user.userId });
     can('manage', 'restaurant', { userId: user._id });
-    can('manage', 'article', { restaurantId: user._id });
     can('manage', 'menu', { restaurantId: user._id });
     can('read', 'order', { restaurantId: user._id });
     can('accept', 'order', { OrderStatus: Models.OrderStatus.Payed, restaurantId: user._id });
@@ -88,15 +93,13 @@ function GetAdminAbilities(user) {
 
 function GetGuestAbilities() {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
-    can('manage', 'account', {typeUser: Models.UserType.Customer })
+    can('create', 'account', {typeUser: Models.UserType.Customer }),
+    can('read', 'account')
     return rules;
 }
-export const subjects: { [K: string]: Function } = {
-    account:subject.bind(null, 'account'),
-    customer:subject.bind(null, 'customer'),
-    order:subject.bind(null, 'order'),
-    menu:subject.bind(null,'menu'),
-    article:subject.bind(null, 'article'),
-    restaurant:subject.bind(null, 'restaurant')
+
+export function subjects (s:string):Function{
+    return subject.bind(null, s);
 }
+
 

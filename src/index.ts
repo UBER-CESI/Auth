@@ -15,6 +15,7 @@ const app = express();
 import * as SQL from "./DBConnector/SQLConnector";
 import * as DB from "./DBConnector/DBConnector";
 import { AnyObject } from "@casl/ability/dist/types/types";
+import { abort } from "process";
 
 const server = app.listen(process.env.PORT || 3000, () => {
   console.log(`App Started on PORT ${process.env.PORT || 3000}`);
@@ -25,7 +26,9 @@ app.use(
     secret: "X5ix1MylhUTBWRU",
     saveUninitialized: true,
     resave: true,
-    cookie: { maxAge: 1000000 }, // in miliseconds
+    proxy:true,
+    cookie:{sameSite:"none", secure:true}
+    //cookie: { maxAge: 1000000 }, // in miliseconds
   })
 );
 declare module "express-session" {
@@ -58,7 +61,7 @@ async function linkUserToCustomer(
     );
   } else {
     data.userId = _userId;
-    return await DB.Create(data, DB.typeEnum.customer, "/");
+    return await DB.Create(data, DB.typeEnum.customer, "");
   }
 }
 async function linkUserToRestaurant(
@@ -99,7 +102,7 @@ app.use(`/`, (req, res, next) => {
     if (!req.session.rules) {
         req.session.rules = AM.abilities["guest"]();
     }
-    res.set({'Access-Control-Allow-Origin':'*'})
+    res.set({'Access-Control-Allow-Origin':true})
     next()
 })
 
@@ -110,11 +113,23 @@ app.put("/user", async function (req, res) {
   let data = req.body;
   let alltypes = data.typeUser.split(",");
   let skip = false;
+  const ab = new Ability(req.session.rules)
   alltypes.forEach((type: any) => {
     if (!Object.values(Models.UserType).includes(type.toLowerCase())) {
       res.status(404).send("This type of account does not exists : " + type);
       skip = true;
       return;
+    }
+    
+    if (!ab.can('create', AM.subjects('account')({typeUser: type.toLowerCase()}))){
+      if (type.toLowerCase() == Models.UserType.Admin){
+        res.status(404).send("You really did try?");
+      }else{
+        res.status(404).send("Not a request for low right PNJs. ");
+      }
+    
+      skip = true;
+      return
     }
   });
   if (skip) {
@@ -141,7 +156,6 @@ app.put("/user", async function (req, res) {
           data
         );
         Object.assign(finalObject, retDB.data);
-
         if (retDB.error) {
           skip2 = true;
           return;
@@ -152,6 +166,7 @@ app.put("/user", async function (req, res) {
   if (skip2) {
     res.status(404).send();
   }
+ 
   res.json(JSON.parse(JSON.stringify(finalObject)));
 });
 app.post("/login", async (req, res) => {
@@ -168,7 +183,6 @@ app.post("/login", async (req, res) => {
     res.status(404).send("Wrong ida");
     return;
   }
-  InstanciateSession(user.data, req.session);
 
   if (user.data.typeUser != "admin") {
     const mongoUser = await DB.Get(
@@ -184,21 +198,25 @@ app.post("/login", async (req, res) => {
       res.status(mongoUser.status).send(mongoUser.data)
       return
     }
-    res.json({
+    const userLogedIn = {
       email: user.data.email,
       nickname: user.data.nickname,
       typeUser: user.data.typeUser,
       userId: user.data.userId,
       ...mongoUser.data[0],
-    });
+    }
+    InstanciateSession(userLogedIn, req.session);
+    res.json(userLogedIn);
     return;
   }
-  res.json({
+  const userLogedIn = {
     email: user.data.email,
     nickname: user.data.nickname,
     typeUser: user.data.typeUser,
-    userId: user.data.userId,
-  });
+    userId: user.data.userId
+  }
+  InstanciateSession(userLogedIn, req.session);
+  res.json(userLogedIn);
 });
 
 app.get("/login/canDoHoolaHoop", (req, res) => {
