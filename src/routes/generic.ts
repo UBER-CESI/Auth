@@ -66,11 +66,12 @@ const autoRouter: {
         });
     },
     UPDATE: (router, type,rest) => {
-        router.post([`/${type}/:id`,`/restaurant/${type}/:id/`], async function (req, res) {
+        router.post([`/${type}/:id`,`/restaurant/${type}/:id/`, `/${type}/:id/${rest}`], async function (req, res) {
             const ab = new Ability(req.session.rules);
             const body = { id: req.params.id, ...req.body }
             const retDB = await DB.Get("/"+body.id, DB.typeEnum[type], "")
             if (retDB.error){
+                console.log(retDB.error)
                 res.status(404).send("no " + type + " with this id has been found")
                 return
             }
