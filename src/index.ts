@@ -21,6 +21,7 @@ const server = app.listen(process.env.PORT || 3000, () => {
   console.log(`App Started on PORT ${process.env.PORT || 3000}`);
 });
 
+app.set('trust proxy', 1) // trust first proxy
 app.use(
   session({
     secret: "X5ix1MylhUTBWRU",
@@ -182,15 +183,15 @@ app.put("/user", async function (req, res) {
 app.post("/login", async (req, res) => {
   const user: SQL.SQLRes = await SQL.GetUserByEmail(req.body.email);
   if (!user.data) {
-    res.status(404).send("Wrong id");
+    res.status(403).send("Wrong id");
     return;
   }
   if (user.errno) {
-    res.status(404).json(user);
+    res.status(403).json(user);
     return;
   }
   if (!(await bcrypt.compare(req.body.password, user.data.pwd))) {
-    res.status(404).send("Wrong ida");
+    res.status(403).send("Wrong ida");
     return;
   }
 
