@@ -97,15 +97,9 @@ function GetGuestAbilities() {
     can('read', 'account')
     return rules;
 }
-export const subjects: { [K: string]: Function} = {
-    account:subject.bind(null, 'account'),
-    customer:subject.bind(null, 'customer'),
-    order:subject.bind(null, 'order'),
-    menu:subject.bind(null,'menu'),
-    article:subject.bind(null, 'article'),
-    restaurant:subject.bind(null, 'restaurant'),
-    restaurantstats:subject.bind(null,'restaurantstats'),
-    restaurantitem:subject.bind(null,'restaurantitem'),
-    restaurantmenu:subject.bind(null, 'restaurantmenu')
+
+export function subjects (s:string):Function{
+    return subject.bind(null, s);
 }
+
 
