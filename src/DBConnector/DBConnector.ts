@@ -120,6 +120,7 @@ export function Get(
     headers: { "Content-Type": "application/json" },
     url: getLoadBalancingAddress(type) +  id + restUrl,
   };
+  console.log(config.url)
   return AskBDD(config);
 }
 

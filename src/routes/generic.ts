@@ -18,43 +18,55 @@ const autoRouter: {
 } = {
     SESSIONERROR: (router, type, rest) => {
         router.use(`/${type}`, (req, res, next) => {
-            if (!req.session || !req.session.email) {
+            /*if (!req.session || !req.session.email) {
                 return res.status(401).send("User is not logged in")
-            }
-            res.header
+            }*/
+            res.header('Access-Control-Allow-Credentials',"true");
             return next()
         })
     },
     GET: (router, type, rest) => {
-        router.get([`/${type}`, `/${type}/:id`, `/${type}/:id/${rest}`  ], async function (req, res) {
-            rest = (rest=== undefined)?"":rest
+        router.get([`/${type}`, `/${type}/:id`, `/${type}/:id/${rest}`, `/restaurant/${type}/:id/` ], async function (req, res) {
+            var restUrl = (rest=== undefined)?"":rest
+           
             const ab = new Ability(req.session.rules);
-            if (!ab.can('read', AM.subjects[type+rest]({restaurantId : req.params.id})) ) {
-                res.status(401).send("User " + req.session.nickname + " cannot do that!")
-                return
-            }     
             if(req.query.byUid){
-                rest="?byUid=" + req.query.byUid  
+                console.log("kjjsbcvkebveksb")
+                restUrl="?byUid=" + req.query.byUid  
+                if(!ab.can('read', AM.subjects[type])){
+                    res.status(401).send("User " + req.session.nickname + " cannot do that!")
+                    return 
+                }
+            }else{
+                console.log(type+restUrl)
+                if (!ab.can('read', AM.subjects[type+restUrl]({restaurantId : req.params.id})) ) {
+                    res.status(401).send("User " + req.session.nickname + " cannot do that!")
+                    return
+                }     
             }
-            let dbRes: AxiosReturn = await DB.Get((req.params.id)?"/"+req.params.id:"", DB.typeEnum[type], (rest)?"/" + rest : "");
+           
+           
+            let dbRes: AxiosReturn = await DB.Get((req.params.id)?"/"+req.params.id:"", DB.typeEnum[type], (restUrl)?"/" + restUrl : "");
             handleAxiosReturns(dbRes, res)
         });
     },
+    
     CREATE: (router, type, rest) => {
         router.put([`/${type}`, `/${type}/:id/:rest` ], async function (req, res) {
-            rest = req.params.rest
+            var resteUrl = (req.params.rest || "")
+            
             const ab = new Ability(req.session.rules);
-            console.log(type+rest)
-            if (!ab.can('create', AM.subjects[type+rest]( { restaurantId:req.session._id, customerId: req.session._id, ...req.body }))) {
+            console.log(type+resteUrl)
+            if (!ab.can('create', AM.subjects[type+resteUrl]( { restaurantId:req.session._id, customerId: req.session._id, ...req.body }))) {
                 return res.status(401).send("User " + req.session.nickname + " cannot do that!")
             }
             req.body.customerId=req.session._id
-            let dbRes: AxiosReturn = await DB.Create(req.body, DB.typeEnum[type], (rest&& req.params.id)?"/" +req.params.id+"/"+rest : "");
+            let dbRes: AxiosReturn = await DB.Create(req.body, DB.typeEnum[type], (resteUrl&& req.params.id)?"/" +req.params.id+"/"+resteUrl : "");
             handleAxiosReturns(dbRes, res);
         });
     },
     UPDATE: (router, type,rest) => {
-        router.post(`/${type}/:id`, async function (req, res) {
+        router.post([`/${type}/:id`,`/restaurant/${type}/:id/`], async function (req, res) {
             const ab = new Ability(req.session.rules);
             const body = { id: req.params.id, ...req.body }
             const retDB = await DB.Get("/"+body.id, DB.typeEnum[type], "")
