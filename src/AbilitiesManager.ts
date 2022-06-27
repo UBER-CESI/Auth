@@ -27,6 +27,7 @@ export const abilities: { [K: string]: Function } = {
 function GetCustomerAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
     can('read', ['customer','restaurant','restaurantmenu','restaurantitem','deliverer']);
+    can('read', 'customerhistory' ,{customerId:user.user_id})
     can('create', 'account', {typeUser: Models.UserType.Customer })
     can('manage', 'account', { userId: user.userId });
     can('create', 'order', {customerId : user._id , status:null}).because("customers can only create a command for themselves without a status ('status'=null)" );
@@ -54,7 +55,8 @@ function GetRestaurateurAbilities(user) {
 function GetDelivererAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
     can('do', 'better hoola-hoop');
-    can('manage', 'account', { userId: user.userId });
+    can('read', 'delivererhistory', {idDeliverer:user._id})
+    can('manage', 'account', { userId: user._id });
     can('accept', 'order', { OrderStatus: Models.OrderStatus.Done });
     can('deliver', 'order', { OrderStatus: Models.OrderStatus.InDelivery, idDeliverer: user.userId });
     return rules;

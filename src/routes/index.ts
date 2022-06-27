@@ -29,6 +29,9 @@ module.exports = function (app) {
     app.use("/", createRouter(["SESSIONERROR", "CREATE", "GET", "UPDATE", "DELETE"], "restaurant", "menu"))
     app.use("/", createRouter(["SESSIONERROR", "CREATE", "GET", "UPDATE", "DELETE"], "menu"))
     app.use("/", createRouter(["SESSIONERROR","GET"], "restaurant", "stats"))
+    app.use("/", createRouter(["SESSIONERROR","GET"], "restaurant", "history"))
+    app.use("/", createRouter(["SESSIONERROR","GET"], "deliverer", "history"))
     app.use("/", createRouter(["SESSIONERROR", "CREATE", "GET", "UPDATE", "DELETE"], "deliverer"))
     app.use("/", createRouter(["SESSIONERROR", "CREATE", "GET", "UPDATE", "DELETE", "PAY", "ACCEPT"], "order"))
+    app.use("/", createRouter(["SESSIONERROR", "CREATE", "GET", "UPDATE", "DELETE", "PAY", "ACCEPT"], "item"))
 };

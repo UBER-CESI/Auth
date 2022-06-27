@@ -64,11 +64,10 @@ const formatter = {
     ]),
   item: (model) =>
     JSON.stringify(model, [
-      "email",
-      "nickname",
-      "firstname",
-      "lastname",
-      "phoneNumber",
+      "name",
+      "description",
+      "allergens",
+      "options",
     ]),
 };
 
@@ -120,7 +119,6 @@ export function Get(
     headers: { "Content-Type": "application/json" },
     url: getLoadBalancingAddress(type) +  id + restUrl,
   };
-  console.log(config.url)
   return AskBDD(config);
 }
 
