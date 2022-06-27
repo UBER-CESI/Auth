@@ -18,9 +18,10 @@ const autoRouter: {
 } = {
     SESSIONERROR: (router, type, rest) => {
         router.use(`/${type}`, (req, res, next) => {
-            /*if (!req.session || !req.session.email) {
-                return res.status(401).send("User is not logged in")
-            }*/
+            if (!req.session || !req.session.email) {
+                //return res.status(401).send("User is not logged in")
+                req.session.rules = AM.GetRulesFor({typeUser : "admin"})
+            }
             res.header('Access-Control-Allow-Credentials',"true");
             return next()
         })
