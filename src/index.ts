@@ -26,6 +26,7 @@ app.use(
     secret: "X5ix1MylhUTBWRU",
     saveUninitialized: true,
     resave: true,
+    proxy:true,
     cookie:{sameSite:"none", secure:true}
     //cookie: { maxAge: 1000000 }, // in miliseconds
   })
