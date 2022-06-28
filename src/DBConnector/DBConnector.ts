@@ -119,6 +119,7 @@ export function Get(
     headers: { "Content-Type": "application/json" },
     url: getLoadBalancingAddress(type) +  id + restUrl,
   };
+  console.log(config)
   return AskBDD(config);
 }
 
@@ -151,6 +152,7 @@ export function Update(model, type: typeEnum, restUrl: string) {
     url: getLoadBalancingAddress(type)+"/"+ model.id + restUrl,
     data: getDataFromType(model, type),
   };
+  console.log(config)
   return AskBDD(config);
 }
 
@@ -160,7 +162,7 @@ export function SuspendCustomer(id: string, sus: string): Promise<AxiosReturn> {
   const config = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    url: getLoadBalancingAddress(typeEnum.customer)  + id + "/suspend",
+    url: getLoadBalancingAddress(typeEnum.customer)  + id + "/suspend",   
     data: { suspend: sus },
   };
   return AskBDD(config);

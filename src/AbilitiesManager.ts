@@ -28,7 +28,7 @@ function GetCustomerAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
     can('read', ['customer','restaurant','restaurantmenu','restaurantitem','deliverer']);
     can('manage', 'customer', {customerId:user._id})
-    can('read', 'customerhistory' ,{customerId:user.user_id})
+    can('read', 'customerhistory' ,{customerId:user._id})
     can('create', 'customer', {typeUser: Models.UserType.Customer })
     can('manage', 'account', { userId: user.userId });
     can('create', 'order', {customerId : user._id , status:null}).because("customers can only create a command for themselves without a status ('status'=null)" );
@@ -46,7 +46,7 @@ function GetRestaurateurAbilities(user) {
     can ('read', 'restaurantstats', {restaurantId : user._id });
     can('manage', 'restaurantitem', {restaurantId:user._id});
     can('manage', 'restaurantmenu', {restaurantId:user._id})
-    can('manage', 'account', { userId: user.userId });
+    can('manage', 'account', { userId: user._id });
     can('manage', 'restaurant', { userId: user._id });
     can('manage', 'menu', { restaurantId: user._id });
     can('read', 'order', { restaurantId: user._id });
@@ -102,6 +102,7 @@ function GetGuestAbilities() {
 }
 
 export function subjects (s:string):Function{
+    console.log(s)
     return subject.bind(null, s);
 }
 

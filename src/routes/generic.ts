@@ -30,22 +30,19 @@ const autoRouter: {
             var restUrl = (rest=== undefined)?"":rest
            
             const ab = new Ability(req.session.rules);
-            if(req.query.byUid){
-                console.log("kjjsbcvkebveksb")
-                restUrl="?byUid=" + req.query.byUid  
-                if(!ab.can('read', AM.subjects(type))){
+            if(!(Object.keys(req.query).length === 0)){
+                restUrl="?"+Object.keys(req.query)[0]+"=" + Object.values(req.query)[0] 
+                if(!ab.can('read', AM.subjects(type)({customerId:req.params.id, restaurantId : req.params.id}))){
                     res.status(401).send("User " + req.session.nickname + " cannot do that!")
                     return 
                 }
             }else{
                 console.log(type+restUrl)
-                if (!ab.can('read', AM.subjects(type+restUrl)({restaurantId : req.params.id})) ) {
+                if (!ab.can('read', AM.subjects(type+restUrl)({customerId:req.params.id, restaurantId : req.params.id})) ) {
                     res.status(401).send("User " + req.session.nickname + " cannot do that!")
                     return
                 }     
             }
-           
-           
             let dbRes: AxiosReturn = await DB.Get((req.params.id)?"/"+req.params.id:"", DB.typeEnum[type], (restUrl)?"/" + restUrl : "");
             handleAxiosReturns(dbRes, res)
         });
