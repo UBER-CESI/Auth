@@ -76,7 +76,7 @@ const autoRouter: {
                 res.status(404).send("no " + type + " with this id has been found")
                 return
             }
-            if (!ab.can('update', AM.subjects(type)( { ...body}))) {
+            if (!ab.can('update', AM.subjects(type)( {customerId:req.params.id, ...body}))) {
                 res.status(401).send("User " + req.session.nickname + " cannot do that!")
                 return
             }

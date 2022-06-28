@@ -27,8 +27,9 @@ export const abilities: { [K: string]: Function } = {
 function GetCustomerAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
     can('read', ['customer','restaurant','restaurantmenu','restaurantitem','deliverer']);
+    can('manage', 'customer', {customerId:user._id})
     can('read', 'customerhistory' ,{customerId:user.user_id})
-    can('create', 'account', {typeUser: Models.UserType.Customer })
+    can('create', 'customer', {typeUser: Models.UserType.Customer })
     can('manage', 'account', { userId: user.userId });
     can('create', 'order', {customerId : user._id , status:null}).because("customers can only create a command for themselves without a status ('status'=null)" );
     can('delete', 'order', { customerId: user._id, status:null }).because("customers can only delete theirs own commands if status = null");
