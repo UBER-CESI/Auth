@@ -29,13 +29,11 @@ function GetCustomerAbilities(user) {
     can('read', ['customer','restaurant','restaurantmenu','restaurantitem','deliverer','menu', 'item']);
     can('manage', 'customer', {customerId:user._id})
     can('read', 'customerhistory' ,{customerId:user._id})
-    can('read', 'order' ,{customerId:user._id})
+    can('update','order', {orderCustomer:user._id})
     can('create', 'customer', {typeUser: Models.UserType.Customer })
     can('manage', 'account', { userId: user.userId });
-    can('create', 'order', {customerId : user._id , status:null}).because("customers can only create a command for themselves without a status ('status'=null)" );
-    can('delete', 'order', { customerId: user._id, status:null }).because("customers can only delete theirs own commands if status = null");
+    can('manage', 'order', {orderCustomer : user._id /*, status:null*/}).because("customers can only create update or delete their command without a status ('status'=null)" );  
     can('pay', 'order', { customerId: user._id,status: undefined });
-    can('read', 'order', { customerId: user._id });
  
     return rules;
 
@@ -43,10 +41,11 @@ function GetCustomerAbilities(user) {
 
 function GetRestaurateurAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
-    can('read', ['customer','restaurant','restaurantmenu', 'restaurantitem','deliverer']);
+    can('read', ['customer','restaurant','restaurantmenu', 'restaurantitem','item','menu','deliverer']);
     can ('read', 'restaurantstats', {restaurantId : user._id });
     can('manage', 'restaurantitem', {restaurantId:user._id});
     can('manage', 'restaurantmenu', {restaurantId:user._id})
+    can('read', 'restauranthistory', {restaurantId:user._id})
     can('manage', 'account', { userId: user._id });
     can('manage', 'restaurant', { userId: user._id });
     can('manage', 'menu', { restaurantId: user._id });
@@ -56,9 +55,9 @@ function GetRestaurateurAbilities(user) {
 }
 function GetDelivererAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
-    can('do', 'better hoola-hoop');
-    can('read', 'delivererhistory', {idDeliverer:user._id})
-    can('manage', 'account', { userId: user._id });
+    can('read', ['customer','restaurant','restaurantmenu', 'restaurantitem','item','menu','deliverer']);
+    can('read', ['delivererhistory'], {delivererId:user._id})
+    can('update', 'deliverer', {delivererId:user._id})
     can('accept', 'order', { OrderStatus: Models.OrderStatus.Done });
     can('deliver', 'order', { OrderStatus: Models.OrderStatus.InDelivery, idDeliverer: user.userId });
     return rules;
@@ -103,7 +102,7 @@ function GetGuestAbilities() {
 }
 
 export function subjects (s:string):Function{
-    console.log(s)
+    console.log("subject used : [" + s + "]")
     return subject.bind(null, s);
 }
 

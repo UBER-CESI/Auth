@@ -40,8 +40,18 @@ const formatter = {
       "userId",
     ]),
   restaurant: (model) =>
-    JSON.stringify(model, ["name", "address", "phoneNumber", "email"]),
-  deliverer: (model) => JSON.stringify(model, ["name"]),
+    JSON.stringify(model, [
+      "name",
+      "address", 
+      "phoneNumber",
+      "email"
+    ]),
+  deliverer: (model) => 
+    JSON.stringify(model, [
+      "email",
+      "nickname",
+      "phoneNumber"
+  ]),
   order: (model) =>
     JSON.stringify(model, [
       "customerId",
