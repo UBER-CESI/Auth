@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import autoRouter from "./generic";
+import notifications from "./notifications";
 const saltRounds = 10;
 interface IdAbility {
   idOwner: string;
@@ -12,16 +13,16 @@ class account {
   }
 }
 
-function createRouter(capabilities: Array<string>, type: string, rest? :string) {   
-    const router = Router()
-    capabilities.forEach(cap => {
-        autoRouter[cap](router, type, rest)
-        
-    })
-    return router
+function createRouter(capabilities: Array<string>, type: string, rest?: string) {
+  const router = Router()
+  capabilities.forEach(cap => {
+    autoRouter[cap](router, type, rest)
+
+  })
+  return router
 }
 module.exports = function (app) {
-   
+    app.use("/notifications", notifications)
     app.use("/", createRouter(["CREATE", "SESSIONERROR", "GET", "UPDATE", "DELETE"], "customer"))
     app.use("/", createRouter(["SUSPEND"], "customer","suspend"))
     app.use("/", createRouter(["SESSIONERROR","GET"], "customer", "history"))

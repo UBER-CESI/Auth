@@ -7,6 +7,7 @@ import * as Models from "../Models";
 import * as ph from "../PlaceHolders";
 
 const serverType: { [K: string]: string[] | undefined } = {
+  notifications: process.env.ADDRESSES_NOTIFICATIONS?.split(","),
   customer: process.env.ADDRESSES_CUSTOMERS?.split(","),
   restaurant: process.env.ADDRESSES_RESTAURANTS?.split(","),
   deliverer: process.env.ADDRESSES_DELIVERERS?.split(","),
@@ -15,12 +16,19 @@ const serverType: { [K: string]: string[] | undefined } = {
   item: process.env.ADRESSES_ITEMS?.split(","),
 };
 export enum typeEnum {
+  notifications = "notifications",
   customer = "customer",
   restaurant = "restaurant",
   deliverer = "deliverer",
   order = "order",
   menu = "menu",
   item = "item",
+}
+
+interface PushSubscription {
+  endpoint: string
+  expirationTime: number;
+  keys: Record<"p256dh" | "auth", string>
 }
 
 export interface AxiosReturn {
@@ -86,7 +94,7 @@ function getDataFromType(model, type: typeEnum): string | undefined {
   return formatter[type](model) || "";
 }
 
-function AskBDD(config): Promise<AxiosReturn> {
+export function AskBDD(config): Promise<AxiosReturn> {
   return axios(config)
     .then((response) => {
       return {
@@ -96,7 +104,6 @@ function AskBDD(config): Promise<AxiosReturn> {
       };
     })
     .catch((e) => {
-      
       return {
         error: true,
         data: e,
@@ -128,7 +135,7 @@ export function Get(
   const config = {
     method: "GET",
     headers: { "Content-Type": "application/json" },
-    url: getLoadBalancingAddress(type) +  id + restUrl,
+    url: getLoadBalancingAddress(type) + id + restUrl,
   };
   console.log(config)
   return AskBDD(config);
@@ -151,7 +158,7 @@ export function Create(model, type: typeEnum, restUrl: string) {
   const config = {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    url: getLoadBalancingAddress(type)  + restUrl,
+    url: getLoadBalancingAddress(type) + restUrl,
     data: dataUp,
   };
   return AskBDD(config);
@@ -160,7 +167,7 @@ export function Update(model, type: typeEnum, restUrl: string) {
   const config = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    url: getLoadBalancingAddress(type)+"/"+ model.id + restUrl,
+    url: getLoadBalancingAddress(type) + "/" + model.id + restUrl,
     data: getDataFromType(model, type),
   };
   console.log(config)
@@ -173,8 +180,28 @@ export function SuspendCustomer(id: string, sus: string): Promise<AxiosReturn> {
   const config = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    url: getLoadBalancingAddress(typeEnum.customer)  + id + "/suspend",   
+    url: getLoadBalancingAddress(typeEnum.customer) + id + "/suspend",
     data: { suspend: sus },
+  };
+  return AskBDD(config);
+}
+
+export function PushSubscribe(_id: string, type: typeEnum, subscription: PushSubscription): Promise<AxiosReturn> {
+  const config = {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    url: getLoadBalancingAddress(type) + "/" + _id + "/subscribe",
+    data: { subscription },
+  };
+  return AskBDD(config);
+}
+
+export function PushUnubscribe(userId: string, type: typeEnum, subscription: PushSubscription): Promise<AxiosReturn> {
+  const config = {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    url: getLoadBalancingAddress(type) + "/" + userId + "/unsubscribe",
+    data: { subscription },
   };
   return AskBDD(config);
 }
