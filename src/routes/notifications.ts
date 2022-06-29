@@ -31,10 +31,10 @@ router.post(`/subscribe`, async (req, res, next) => {
   };
 
   //const userID = "62b30e23edb06dd774f80dd5"
-  const userID = req.session.userId
+  const _id = req.session._id
   //const sessionType = DB.typeEnum.customer
   const sessionType = DB.typeEnum[req.session.type]
-  let dbRes: AxiosReturn = await DB.PushSubscribe(userID, sessionType, req.body.subscription);
+  let dbRes: AxiosReturn = await DB.PushSubscribe(_id, sessionType, req.body.subscription);
   console.log(dbRes)
   handleAxiosReturns(dbRes, res);
 });
