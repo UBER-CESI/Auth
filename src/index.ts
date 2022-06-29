@@ -28,8 +28,7 @@ app.use(
     saveUninitialized: true,
     resave: true,
     proxy: true,
-    cookie: { sameSite: "none", secure: true }
-    //cookie: { maxAge: 1000000 }, // in miliseconds
+    cookie: {maxAge: 10000000000 , sameSite: "none", secure: true }
   })
 );
 declare module "express-session" {
