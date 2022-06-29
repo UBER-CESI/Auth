@@ -74,7 +74,7 @@ const autoRouter: {
                 return
             }
             console.log(retDB.data['customerId'])
-            if (!ab.can('update', AM.subjects(type)( {orderCustomer : retDB.data['customerId'],customerId:req.params.id,delivererId:req.params.id,restaurantID:req.params.id ,...body}))) {
+            if (!ab.can('update', AM.subjects(type)( {orderCustomer : retDB.data['customerId'],customerId:req.params.id,delivererId:req.params.id,restaurantId:req.params.id ,...body}))) {
                 res.status(401).send("User " + req.session.nickname + " cannot do that!")
                 return
             }
