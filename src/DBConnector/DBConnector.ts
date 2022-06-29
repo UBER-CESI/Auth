@@ -38,6 +38,7 @@ const formatter = {
       "lastname",
       "phoneNumber",
       "userId",
+      "suspend"
     ]),
   restaurant: (model) =>
     JSON.stringify(model, [

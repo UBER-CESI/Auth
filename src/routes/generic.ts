@@ -86,6 +86,7 @@ const autoRouter: {
     },
     SUSPEND: (router, type, rest) => {
         router.post(`/${type}/:id/suspend`, async function (req, res) {
+            console.log("stsygsyvsubijdibzhyvb")
             const ab = new Ability(req.session.rules);
             const body = { id: req.params.id, ...req.body }
             if (!ab.can('suspend', AM.subjects(type)(req.body))) {
@@ -93,7 +94,7 @@ const autoRouter: {
                 return
             }
 
-            let dbRes: AxiosReturn = await DB.Update(body, DB.typeEnum[type], "");
+            let dbRes: AxiosReturn = await DB.Update(body, DB.typeEnum[type], "/suspend");
             handleAxiosReturns(dbRes, res);
         });
     },

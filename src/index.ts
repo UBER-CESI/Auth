@@ -261,7 +261,6 @@ app.post("/logout", (req, res) => {
 
 
 function InstanciateSession(user, sess) {
-
     sess.nickname = user.nickname;
     sess.email = user.email;
     sess.userId = user.userId;
