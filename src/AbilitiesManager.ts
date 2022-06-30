@@ -44,12 +44,14 @@ function GetRestaurateurAbilities(user) {
     can('read', ['customer','restaurant','restaurantmenu', 'restaurantitem','item','menu','deliverer']);
     can ('read', 'restaurantstats', {restaurantId : user._id });
     can('manage', 'restaurantitem', {restaurantId:user._id});
+    can('manage', 'item', {restaurantId:user._id});
     can('manage', 'restaurantmenu', {restaurantId:user._id})
     can('read', 'restauranthistory', {restaurantId:user._id})
     can('manage', 'account', { userId: user._id });
     can('manage', 'restaurant', { restaurantId: user._id });
     can('manage', 'menu', { restaurantId: user._id });
     can('read', 'order', { restaurantId: user._id });
+    
     can('accept', 'order', { OrderStatus: Models.OrderStatus.Payed, restaurantId: user._id });
     return rules;
 }
