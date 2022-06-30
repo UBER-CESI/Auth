@@ -74,7 +74,11 @@ const autoRouter: {
                 return
             }
             console.log(retDB.data['customerId'])
-            if (!ab.can('update', AM.subjects(type)( {orderCustomer : retDB.data['customerId'],customerId:req.params.id,delivererId:req.params.id,restaurantId:req.params.id ,...body}))) {
+            if (!ab.can('update', AM.subjects(type)( {
+                orderCustomer : retDB.data['customerId'],
+                customerId:req.params.id,
+                delivererId:req.params.id,
+                restaurantId:req.params.id ,...body}))) {
                 res.status(401).send("User " + req.session.nickname + " cannot do that!")
                 return
             }
@@ -102,7 +106,13 @@ const autoRouter: {
         router.delete(`/${type}/:id`, async function (req, res) {
             const ab = new Ability(req.session.rules);
             const DBRes = await DB.Get("/" + req.params.id, DB.typeEnum[type], "")
-            if (!ab.can('delete', AM.subjects(type)({ status: (<any>DBRes.data).status,orderCustomer:DBRes.data['customerId'], customerId: req.session._id, delivererId:req.params.id, userId: req.params.id, ...req.body }))) {
+            if (!ab.can('delete', AM.subjects(type)({ 
+                status: (<any>DBRes.data).status,
+                orderCustomer:DBRes.data['customerId'], 
+                customerId: req.session._id, 
+                delivererId:req.params.id, 
+                restaurantId:req.session._id,
+                userId: req.params.id, ...req.body }))) {
                 res.status(404).send("User " + req.session.nickname + " cannot do that!")
                 return
             }
