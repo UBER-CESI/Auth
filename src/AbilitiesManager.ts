@@ -56,7 +56,7 @@ function GetRestaurateurAbilities(user) {
 function GetDelivererAbilities(user) {
     const { can, cannot, rules } = new AbilityBuilder(Ability);
     can('read', ['customer','restaurant','restaurantmenu', 'restaurantitem','item','menu','deliverer']);
-    can('read', ['delivererhistory'], {delivererId:user._id})
+    can('read', ['delivererhistory', 'order'], {orderDeliverer:user._id})
     can('update', 'deliverer', {delivererId:user._id})
     can('accept', 'order', { OrderStatus: Models.OrderStatus.Done });
     can('deliver', 'order', { OrderStatus: Models.OrderStatus.InDelivery, idDeliverer: user.userId });

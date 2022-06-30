@@ -32,7 +32,7 @@ const autoRouter: {
             const ab = new Ability(req.session.rules);
             if (Object.keys(req.query).length >0) {
                 restUrl = "?" + Object.keys(req.query)[0]+ "=" + Object.values(req.query)[0]
-                if (!ab.can('read', AM.subjects(type)({orderCustomer: Object.values(req.query)[0], customerId:Object.values(req.query)[0],restaurantId:Object.values(req.query)[0]}))) {
+                if (!ab.can('read', AM.subjects(type)({orderDeliverer:  Object.values(req.query)[0],orderCustomer: Object.values(req.query)[0], customerId:Object.values(req.query)[0],restaurantId:Object.values(req.query)[0]}))) {
                     res.status(403).send("User " + req.session.nickname + " cannot do that!")
                     return
                 }
