@@ -170,7 +170,6 @@ export function Update(model, type: typeEnum, restUrl: string) {
     url: getLoadBalancingAddress(type) + "/" + model.id + restUrl,
     data: getDataFromType(model, type),
   };
-  console.log(config)
   return AskBDD(config);
 }
 

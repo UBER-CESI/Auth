@@ -45,12 +45,12 @@ function GetRestaurateurAbilities(user) {
     can ('read', 'restaurantstats', {restaurantId : user._id });
     can('manage', 'restaurantitem', {restaurantId:user._id});
     can('manage', 'item');
-    can('manage', 'restaurantmenu', {restaurantId:user._id})
+    can('manage', 'restaurantmenu')
     can('read', 'restauranthistory', {restaurantId:user._id})
     can('manage', 'account', { userId: user._id });
     can('manage', 'restaurant', { restaurantId: user._id });
-    can('manage', 'menu', { restaurantId: user._id });
-    can('manage', 'order', { orderRestaurant: user._id });
+    can('manage', 'menu');
+    can('manage', 'order');
     
     can('accept', 'order', { OrderStatus: Models.OrderStatus.Payed, restaurantId: user._id });
     return rules;
@@ -105,7 +105,7 @@ function GetGuestAbilities() {
 }
 
 export function subjects (s:string):Function{
-    console.log("subject used : [" + s + "]")
+    //console.log("subject used : [" + s + "]")
     return subject.bind(null, s);
 }
 
