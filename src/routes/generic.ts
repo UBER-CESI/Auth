@@ -78,7 +78,9 @@ const autoRouter: {
                 orderCustomer : retDB.data['customerId'],
                 customerId:req.params.id,
                 delivererId:req.params.id,
-                restaurantId:req.params.id ,...body}))) {
+                restaurantId:req.params.id ,
+                orderRestaurant:retDB.data['restaurantId'],
+                ...body}))) {
                 res.status(401).send("User " + req.session.nickname + " cannot do that!")
                 return
             }
