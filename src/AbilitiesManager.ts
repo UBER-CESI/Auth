@@ -50,8 +50,8 @@ function GetRestaurateurAbilities(user) {
     can('manage', 'account', { userId: user._id });
     can('manage', 'restaurant', { restaurantId: user._id });
     can('manage', 'menu');
-    can('manage', 'order');
     
+    can('manage', 'order');
     can('accept', 'order', { OrderStatus: Models.OrderStatus.Payed, restaurantId: user._id });
     return rules;
 }
@@ -63,6 +63,9 @@ function GetDelivererAbilities(user) {
     can('update', 'deliverer', {delivererId:user._id})
     can('accept', 'order', { OrderStatus: Models.OrderStatus.Done });
     can('deliver', 'order', { OrderStatus: Models.OrderStatus.InDelivery, idDeliverer: user.userId });
+    can('update','menu'),
+    
+    can('manage', 'order');
     return rules;
 }
 
@@ -105,7 +108,7 @@ function GetGuestAbilities() {
 }
 
 export function subjects (s:string):Function{
-    //console.log("subject used : [" + s + "]")
+    console.log("subject used : [" + s + "]")
     return subject.bind(null, s);
 }
 
